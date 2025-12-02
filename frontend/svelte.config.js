@@ -7,7 +7,13 @@ export default {
   // for more information about preprocessors
   preprocess: vitePreprocess(),
   kit: {
-    adapter: adapter(),
+    adapter: adapter({
+      pages: 'dist',
+      assets: 'dist',
+      fallback: 'index.html',
+      precompress: false,
+      strict: true
+    }),
     paths: {
       base: process.env.NODE_ENV === 'production' ? '/portfolio' : ''
     }
