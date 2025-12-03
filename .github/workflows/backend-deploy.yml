@@ -43,4 +43,4 @@ jobs:
           koyeb-api-token: ${{ secrets.KOYEB_API_TOKEN }}
           service-name: portfolio-backend
           # Optional: If you want to specify the builder or other settings
-          # builder: dockerfile
+          builder: dockerfile
