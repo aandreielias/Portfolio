@@ -2,7 +2,7 @@
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
 
-# Copy pom.xml and download dependencies (cached if pom.xml doesn't change)
+# Copy pom.xml and download dependencies
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
 
@@ -14,10 +14,11 @@ RUN mvn clean package -DskipTests -B
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-# Copy the built artifact. 
-# We use a wildcard but assume only one jar is produced by spring-boot-maven-plugin.
-# The 'app.jar' rename ensures we have a consistent name.
+# Copy the built artifact
 COPY --from=build /app/target/*.jar app.jar
+
+# Copy the uploads directory to the container
+COPY uploads ./uploads
 
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
