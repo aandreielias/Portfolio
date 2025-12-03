@@ -1,6 +1,14 @@
 <script>
+    import { API_BASE } from "../../services/api";
     export let project;
     export let onClick;
+
+    // Helper to construct full URL
+    function getFullUrl(path) {
+        if (!path) return null;
+        if (path.startsWith("http")) return path;
+        return `${API_BASE}${path.startsWith("/") ? "" : "/"}${path}`;
+    }
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -11,7 +19,7 @@
             <h3>{project.title}</h3>
             {#if project.logo}
                 <img
-                    src={project.logo}
+                    src={getFullUrl(project.logo)}
                     alt="{project.title} logo"
                     class="logo"
                 />

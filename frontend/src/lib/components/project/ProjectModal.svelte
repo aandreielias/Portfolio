@@ -3,6 +3,7 @@
     import Modal from "../common/Modal.svelte";
     import ERootsDescription from "./descriptions/ERootsDescription.svelte";
     import PortfolioDescription from "./descriptions/PortfolioDescription.svelte";
+    import { API_BASE } from "../../services/api";
 
     export let project;
 
@@ -12,11 +13,19 @@
         dispatch("close");
     }
 
+    // Helper to construct full URL
+    function getFullUrl(path) {
+        if (!path) return null;
+        if (path.startsWith("http")) return path;
+        return `${API_BASE}${path.startsWith("/") ? "" : "/"}${path}`;
+    }
+
     function getPdfUrl(url, title) {
+        let fullUrl = getFullUrl(url);
         if (title && title.toLowerCase().includes("eroots")) {
-            return `${url}#page=129`;
+            return `${fullUrl}#page=129`;
         }
-        return url;
+        return fullUrl;
     }
 </script>
 
@@ -33,7 +42,7 @@
         {/if}
         {#if project.logo}
             <img
-                src={project.logo}
+                src={getFullUrl(project.logo)}
                 alt="{project.title} logo"
                 class="project-logo"
             />
@@ -50,7 +59,7 @@
 
     {#if project.pdf && project.title !== "ERoots"}
         <div class="actions">
-            <a href={project.pdf} download class="secondary-btn">
+            <a href={getFullUrl(project.pdf)} download class="secondary-btn">
                 Download PDF
             </a>
         </div>

@@ -2,7 +2,7 @@ let envApiUrl = import.meta.env.VITE_API_URL;
 if (envApiUrl && !envApiUrl.startsWith("http")) {
     envApiUrl = "https://" + envApiUrl;
 }
-const API_BASE = envApiUrl || "/api";
+export const API_BASE = envApiUrl || "/api";
 
 export class ApiService {
     static async fetchAllTechs() {
