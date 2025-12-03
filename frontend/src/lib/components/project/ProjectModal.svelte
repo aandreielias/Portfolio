@@ -17,7 +17,14 @@
     function getFullUrl(path) {
         if (!path) return null;
         if (path.startsWith("http")) return path;
-        return `${API_BASE}${path.startsWith("/") ? "" : "/"}${path}`;
+
+        // Avoid double /api if API_BASE ends with /api and path starts with /api
+        let base = API_BASE;
+        if (base.endsWith("/api") && path.startsWith("/api")) {
+            base = base.slice(0, -4);
+        }
+
+        return `${base}${path.startsWith("/") ? "" : "/"}${path}`;
     }
 
     function getPdfUrl(url, title) {
