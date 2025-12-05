@@ -1,0 +1,29 @@
+[
+    {
+        "id": "ERoots",
+        "title": "ERoots",
+        "description": "Work in Progress",
+        "logo": "/uploads/projects/ERoots/logo.png",
+        "cover": null,
+        "pdf": "/uploads/projects/ERoots/ERoots-Diplomarbeit.pdf",
+        "files": {
+            "ERoots-Diplomarbeit.pdf": "/uploads/projects/ERoots/ERoots-Diplomarbeit.pdf",
+            "eroots-client-ui.png": "/uploads/projects/ERoots/eroots-client-ui.png",
+            "eroots_architecture.png": "/uploads/projects/ERoots/eroots_architecture.png",
+            "logo.png": "/uploads/projects/ERoots/logo.png"
+        }
+    },
+    {
+        "id": "Portfolio",
+        "title": "Portfolio Website",
+        "description": "A modern, responsive portfolio website built with Svelte.",
+        "logo": "/uploads/projects/Portfolio/logo.svg",
+        "cover": "/uploads/projects/Portfolio/landing.png",
+        "pdf": null,
+        "files": {
+            "SystemArchitecture.png": "/uploads/projects/Portfolio/SystemArchitecture.png",
+            "landing.png": "/uploads/projects/Portfolio/landing.png",
+            "logo.svg": "/uploads/projects/Portfolio/logo.svg"
+        }
+    }
+]

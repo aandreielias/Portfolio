@@ -9,12 +9,16 @@
     export let height = "auto";
     export let maxHeight = "90vh";
     export let scrollableBody = true;
+    export let visibleColumns = 1;
+    export let maxColumns = 1;
+    export let minPanelWidth = 0;
 
     const dispatch = createEventDispatcher();
 
     let modalContent;
     let isDragging = false;
     let isCollapsed = false;
+    let isMaximized = false;
     let startX;
     let startY;
     let translateX = 0;
@@ -40,6 +44,40 @@
         isCollapsed = !isCollapsed;
     }
 
+    function toggleMaximize() {
+        if (!isMaximized) {
+            // About to maximize
+            const windowWidth = window.innerWidth;
+            let potentialColumns = 1;
+
+            if (minPanelWidth > 0) {
+                // Calculate based on strict panel width requirements
+                potentialColumns = Math.floor(windowWidth / minPanelWidth);
+            } else if (modalContent) {
+                const rect = modalContent.getBoundingClientRect();
+                const currentWidth = rect.width;
+                // Calculate how many columns fit based on ratio
+                const ratio = windowWidth / currentWidth;
+                potentialColumns = Math.floor(ratio);
+            }
+
+            // Clamp between 1 and maxColumns
+            visibleColumns = Math.max(
+                1,
+                Math.min(potentialColumns, maxColumns),
+            );
+        } else {
+            // Restoring
+            visibleColumns = 1;
+        }
+
+        isMaximized = !isMaximized;
+        // Reset collapse state when expanding
+        if (isMaximized) {
+            isCollapsed = false;
+        }
+    }
+
     function handleKeydown(event) {
         if (event.key === "Escape") {
             close();
@@ -48,6 +86,8 @@
 
     function handlePointerDown(event) {
         if (event.target.closest("button") || event.target.closest("a")) return;
+        // Disable drag if maximized
+        if (isMaximized) return;
 
         isDragging = true;
         startX = event.clientX;
@@ -94,6 +134,9 @@
     function handleResizeStart(event, direction) {
         event.preventDefault();
         event.stopPropagation();
+
+        // Disable resize if maximized
+        if (isMaximized) return;
 
         activeResizeHandle = event.currentTarget;
         activeResizeHandle.setPointerCapture(event.pointerId);
@@ -205,15 +248,26 @@
     <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div
         class="modal-content glass-panel"
+        class:maximized={isMaximized}
         bind:this={modalContent}
         on:click|stopPropagation
-        style="--max-width: {resizableWidth
+        style="
+            --max-width: {isMaximized
             ? '100vw'
-            : maxWidth}; --width: {resizableWidth ||
-            width}; --height: {isCollapsed
-            ? 'auto'
-            : resizableHeight ||
-              height}; --max-height: {maxHeight}; transform: translate({translateX}px, {translateY}px);"
+            : resizableWidth
+              ? '100vw'
+              : maxWidth}; 
+            --width: {isMaximized ? '100vw' : resizableWidth || width}; 
+            --height: {isMaximized
+            ? '100vh'
+            : isCollapsed
+              ? 'auto'
+              : resizableHeight || height}; 
+            --max-height: {isMaximized ? '100vh' : maxHeight}; 
+            transform: {isMaximized
+            ? 'translate(0px, 0px)'
+            : `translate(${translateX}px, ${translateY}px)`};
+        "
         transition:scale={{
             duration: 300,
             start: 0.95,
@@ -222,44 +276,46 @@
         }}
     >
         <!-- Resize Handles -->
-        <div
-            class="resize-handle n"
-            on:pointerdown={(e) => handleResizeStart(e, "n")}
-        ></div>
-        <div
-            class="resize-handle s"
-            on:pointerdown={(e) => handleResizeStart(e, "s")}
-        ></div>
-        <div
-            class="resize-handle e"
-            on:pointerdown={(e) => handleResizeStart(e, "e")}
-        ></div>
-        <div
-            class="resize-handle w"
-            on:pointerdown={(e) => handleResizeStart(e, "w")}
-        ></div>
-        <div
-            class="resize-handle ne"
-            on:pointerdown={(e) => handleResizeStart(e, "ne")}
-        ></div>
-        <div
-            class="resize-handle nw"
-            on:pointerdown={(e) => handleResizeStart(e, "nw")}
-        ></div>
-        <div
-            class="resize-handle se"
-            on:pointerdown={(e) => handleResizeStart(e, "se")}
-        ></div>
-        <div
-            class="resize-handle sw"
-            on:pointerdown={(e) => handleResizeStart(e, "sw")}
-        ></div>
+        {#if !isMaximized}
+            <div
+                class="resize-handle n"
+                on:pointerdown={(e) => handleResizeStart(e, "n")}
+            ></div>
+            <div
+                class="resize-handle s"
+                on:pointerdown={(e) => handleResizeStart(e, "s")}
+            ></div>
+            <div
+                class="resize-handle e"
+                on:pointerdown={(e) => handleResizeStart(e, "e")}
+            ></div>
+            <div
+                class="resize-handle w"
+                on:pointerdown={(e) => handleResizeStart(e, "w")}
+            ></div>
+            <div
+                class="resize-handle ne"
+                on:pointerdown={(e) => handleResizeStart(e, "ne")}
+            ></div>
+            <div
+                class="resize-handle nw"
+                on:pointerdown={(e) => handleResizeStart(e, "nw")}
+            ></div>
+            <div
+                class="resize-handle se"
+                on:pointerdown={(e) => handleResizeStart(e, "se")}
+            ></div>
+            <div
+                class="resize-handle sw"
+                on:pointerdown={(e) => handleResizeStart(e, "sw")}
+            ></div>
+        {/if}
 
         <div class="window-controls">
             <button
-                class="minimize-btn"
-                on:click={toggleCollapse}
-                aria-label="Minimize"
+                class="maximize-btn"
+                on:click={toggleMaximize}
+                aria-label="Maximize"
             ></button>
             <button class="close-btn" on:click={close} aria-label="Close"
             ></button>
@@ -273,7 +329,7 @@
                 on:pointermove={handlePointerMove}
                 on:pointerup={handlePointerUp}
                 on:pointercancel={handlePointerUp}
-                style="cursor: grab;"
+                style="cursor: {isMaximized ? 'default' : 'grab'};"
             >
                 {#if title}
                     <h1>{title}</h1>
@@ -326,6 +382,18 @@
         will-change: transform;
         /* overflow: hidden; Removed to allow resize handles to be grabbed easily if needed, but keeping handles inside for now */
         overflow: hidden;
+        transition:
+            width 0.3s ease,
+            height 0.3s ease,
+            max-width 0.3s ease,
+            max-height 0.3s ease,
+            transform 0.3s ease,
+            border-radius 0.3s ease;
+    }
+
+    .modal-content.maximized {
+        border-radius: 0;
+        border: none;
     }
 
     .modal-content.collapsed {
@@ -411,7 +479,7 @@
     }
 
     .close-btn,
-    .minimize-btn {
+    .maximize-btn {
         width: 14px;
         height: 14px;
         border-radius: 50%;
@@ -430,17 +498,17 @@
 
     .close-btn:hover {
         transform: scale(1.2);
-        background-color: #f87171;
+        background-color: #d64a4a;
     }
 
-    .minimize-btn {
-        background-color: #eab308;
-        box-shadow: 0 0 10px rgba(234, 179, 8, 0.3);
+    .maximize-btn {
+        background-color: #1fa34f;
+        box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
     }
 
-    .minimize-btn:hover {
+    .maximize-btn:hover {
         transform: scale(1.2);
-        background-color: #facc15;
+        background-color: #155f30;
     }
 
     .modal-header {

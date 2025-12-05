@@ -1,6 +1,8 @@
 <script>
     import { onMount, onDestroy } from "svelte";
     import DashboardRenderer from "./visualizations/DashboardRenderer.svelte";
+    import StockRenderer from "./visualizations/StockRenderer.svelte";
+    import ModelRenderer from "./visualizations/ModelRenderer.svelte";
 
     export let techId;
     export let data; // { sim, pyodide }
@@ -8,6 +10,8 @@
     // Registry of visualizations
     const visualizations = {
         DashboardSim: DashboardRenderer,
+        StockViewer: StockRenderer,
+        "3d-viewer": ModelRenderer,
     };
 </script>
 

@@ -1,59 +1,46 @@
-let envApiUrl = import.meta.env.VITE_API_URL;
-if (envApiUrl && !envApiUrl.startsWith("http")) {
-    envApiUrl = "https://" + envApiUrl;
-}
-export const API_BASE = envApiUrl || "/api";
+// Use Vite's base URL for correct path resolving on GitHub Pages
+const BASE_URL = import.meta.env.BASE_URL;
 
 export class ApiService {
     static async fetchAllTechs() {
         try {
-            const response = await fetch(`${API_BASE}/tech`);
+            const response = await fetch(`${BASE_URL}data/tech.json`);
             if (!response.ok) throw new Error("Failed to fetch techs");
             const data = await response.json();
-            return data.map(tech => {
-                if (tech.id === "DashboardSim" && tech.description === "No description available.") {
-                    return {
-                        ...tech,
-                        description: "A high-fidelity Python simulation of a 2005 VW Phaeton W12 LWB. This project models the complex interaction between the 6.0L W12 engine, ZF 5HP24A automatic transmission, and the vehicle's chassis dynamics. It includes a real-time thermodynamic system, fluid dynamics for the torque converter, and a fully functional digital dashboard interface built with Tkinter."
-                    };
-                }
-                return tech;
-            });
+            return data;
         } catch (error) {
-            console.error("InputHandler Error:", error);
+            console.error("ApiService Error:", error);
             return [];
         }
     }
 
     static async fetchTech(id) {
         try {
-            const response = await fetch(`${API_BASE}/tech/${id}`);
-            if (!response.ok) throw new Error("Failed to fetch tech");
-            return await response.json();
+            const allTechs = await this.fetchAllTechs();
+            return allTechs.find(t => t.id === id) || null;
         } catch (error) {
-            console.error("InputHandler Error:", error);
+            console.error("ApiService Error:", error);
             return null;
         }
     }
 
     static async fetchAllProjects() {
         try {
-            const response = await fetch(`${API_BASE}/project`);
+            const response = await fetch(`${BASE_URL}data/project.json`);
             if (!response.ok) throw new Error("Failed to fetch projects");
             return await response.json();
         } catch (error) {
-            console.error("InputHandler Error:", error);
+            console.error("ApiService Error:", error);
             return [];
         }
     }
 
     static async fetchProject(id) {
         try {
-            const response = await fetch(`${API_BASE}/project/${id}`);
-            if (!response.ok) throw new Error("Failed to fetch project");
-            return await response.json();
+            const allProjects = await this.fetchAllProjects();
+            return allProjects.find(p => p.id === id) || null;
         } catch (error) {
-            console.error("InputHandler Error:", error);
+            console.error("ApiService Error:", error);
             return null;
         }
     }

@@ -7,10 +7,37 @@
     let fileKeys = [];
     let currentIndex = 0;
     let direction = 1; // 1 for next, -1 for prev
+    let displayedCode = "";
 
     $: fileKeys = Object.keys(files);
     $: currentFile = fileKeys[currentIndex] || "";
-    $: currentCode = files[currentFile] || "";
+    $: rawContent = files[currentFile] || "";
+
+    // Effect to handle content loading (string vs URL)
+    $: {
+        if (
+            rawContent &&
+            (rawContent.startsWith("/") || rawContent.startsWith("http"))
+        ) {
+            // It's likely a file path, valid for fetching
+            displayedCode = "Loading...";
+            fetch(rawContent)
+                .then((res) => {
+                    if (!res.ok) throw new Error("Failed to load code");
+                    return res.text();
+                })
+                .then((text) => {
+                    displayedCode = text;
+                })
+                .catch((err) => {
+                    console.error("Code loading error:", err);
+                    displayedCode = `Error loading code from ${rawContent}`;
+                });
+        } else {
+            // It's raw code string
+            displayedCode = rawContent;
+        }
+    }
 
     function nextFile() {
         direction = 1;
@@ -72,7 +99,7 @@
                     out:fly={{ x: -50 * direction, duration: 300 }}
                 >
                     <CodeBlock
-                        code={currentCode}
+                        code={displayedCode}
                         language={getLanguage(currentFile)}
                         showHeader={false}
                         embedded={true}

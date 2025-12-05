@@ -141,7 +141,11 @@
 
         {#if activeTab === "about"}
             <div class="side-column">
-                <img src="/api/self" alt={name} class="profile-image" />
+                <img
+                    src="{import.meta.env.BASE_URL}uploads/self.jpeg"
+                    alt={name}
+                    class="profile-image"
+                />
                 <div class="interests-section">
                     <h3>Personal Interests</h3>
                     <p>

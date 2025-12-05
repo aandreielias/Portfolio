@@ -1,20 +1,17 @@
 <script>
-    import { API_BASE } from "../../services/api";
     export let project;
     export let onClick;
+
+    const BASE_URL = import.meta.env.BASE_URL;
 
     // Helper to construct full URL
     function getFullUrl(path) {
         if (!path) return null;
         if (path.startsWith("http")) return path;
 
-        // Avoid double /api if API_BASE ends with /api and path starts with /api
-        let base = API_BASE;
-        if (base.endsWith("/api") && path.startsWith("/api")) {
-            base = base.slice(0, -4);
-        }
-
-        return `${base}${path.startsWith("/") ? "" : "/"}${path}`;
+        // Remove leading slash from path if it exists to avoid double slash with BASE_URL
+        const cleanPath = path.startsWith("/") ? path.slice(1) : path;
+        return `${BASE_URL}${cleanPath}`;
     }
 </script>
 
