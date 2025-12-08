@@ -2,9 +2,9 @@
     import { onMount, onDestroy } from "svelte";
 
     // Default Symbols (Fallback)
-    let selectedId = "bitcoin";
-    let selectedSymbol = "BTC";
-    let selectedName = "Bitcoin";
+    let selectedId = "BTC-USD";
+    let selectedSymbol = "BTC-USD";
+    let selectedName = "Bitcoin USD";
 
     let price = 0;
     let change24h = 0;
@@ -24,29 +24,50 @@
     let chartWidth;
     let hoverInfo = null;
 
+    // CORS Proxy to bypass browser restrictions for Yahoo Finance
+    const CORS_PROXY = "https://corsproxy.io/?";
+
     async function fetchMarketData() {
-        if (!selectedId) return;
+        if (!selectedSymbol) return;
 
         try {
-            // Fetch current price and 24h change
-            const priceRes = await fetch(
-                `https://api.coingecko.com/api/v3/simple/price?ids=${selectedId}&vs_currencies=usd&include_24hr_change=true`,
-            );
-            const priceData = await priceRes.json();
+            // Yahoo Finance Chart API (includes current price in meta)
+            // Range: 1d (1 day), Interval: 5m (5 minutes)
+            const url = `${CORS_PROXY}https://query1.finance.yahoo.com/v8/finance/chart/${selectedSymbol}?range=1d&interval=5m`;
 
-            if (priceData[selectedId]) {
-                price = priceData[selectedId].usd;
-                change24h = priceData[selectedId].usd_24h_change;
-            }
+            const res = await fetch(url);
+            if (!res.ok) throw new Error("Network response was not ok");
 
-            // Fetch chart history (24h)
-            const historyRes = await fetch(
-                `https://api.coingecko.com/api/v3/coins/${selectedId}/market_chart?vs_currency=usd&days=1`,
-            );
-            const historyData = await historyRes.json();
+            const data = await res.json();
+            const result = data.chart.result[0];
 
-            if (historyData.prices) {
-                history = historyData.prices;
+            if (result) {
+                const meta = result.meta;
+                const timestamps = result.timestamp || [];
+                const quotes = result.indicators.quote[0];
+                const closes = quotes.close || [];
+
+                // 1. Current Price & Change
+                price = meta.regularMarketPrice;
+                const prevClose = meta.previousClose;
+
+                // Calculate 24h change (or daily change provided by Yahoo)
+                // Yahoo gives regularMarketPrice (live) and previousClose
+                if (prevClose) {
+                    change24h = ((price - prevClose) / prevClose) * 100;
+                } else {
+                    change24h = 0;
+                }
+
+                // 2. History Data
+                // Filter out null values (market closed gaps)
+                history = timestamps
+                    .map((t, i) => {
+                        return [t * 1000, closes[i]];
+                    })
+                    .filter((p) => p[1] !== null);
+
+                // If market is closed/empty chart, might want to fallback or handle empty
             }
 
             error = null;
@@ -78,11 +99,22 @@
         showResults = true;
 
         try {
-            const res = await fetch(
-                `https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(searchQuery)}`,
-            );
+            // Yahoo Finance Search API
+            const url = `${CORS_PROXY}https://query2.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(searchQuery)}`;
+
+            const res = await fetch(url);
             const data = await res.json();
-            searchResults = data.coins || [];
+
+            // Map Yahoo quotes to our format
+            // Yahoo returns { quotes: [ { symbol, shortname, longname, typeDisp, ... } ] }
+            searchResults = (data.quotes || [])
+                .filter((q) => q.isYahooFinance) // Filter valid entries
+                .map((q) => ({
+                    id: q.symbol,
+                    symbol: q.symbol,
+                    name: q.shortname || q.longname || q.symbol,
+                    type: q.typeDisp,
+                }));
         } catch (e) {
             console.error("Search failed:", e);
             searchResults = [];
@@ -92,7 +124,7 @@
     }
 
     function selectCoin(coin) {
-        selectedId = coin.id;
+        selectedId = coin.symbol; // Yahoo uses symbol as ID usually
         selectedSymbol = coin.symbol;
         selectedName = coin.name;
 
@@ -247,10 +279,18 @@
                                 class="search-item"
                                 on:click={() => selectCoin(coin)}
                             >
-                                <img src={coin.thumb} alt={coin.symbol} />
+                                {#if coin.thumb}
+                                    <img src={coin.thumb} alt={coin.symbol} />
+                                {:else}
+                                    <div class="placeholder-icon">
+                                        {coin.symbol[0]}
+                                    </div>
+                                {/if}
                                 <div class="item-text">
                                     <span class="name">{coin.name}</span>
-                                    <span class="sym">{coin.symbol}</span>
+                                    <span class="sym"
+                                        >{coin.symbol} ({coin.type})</span
+                                    >
                                 </div>
                             </div>
                         {/each}
@@ -327,12 +367,12 @@
                     >
                         <stop
                             offset="0%"
-                            stop-color={change24h >= 0 ? "#4ade80" : "#f87171"}
+                            stop-color={change24h >= 0 ? "#16a34a" : "#f87171"}
                             stop-opacity="0.2"
                         />
                         <stop
                             offset="100%"
-                            stop-color={change24h >= 0 ? "#4ade80" : "#f87171"}
+                            stop-color={change24h >= 0 ? "#16a34a" : "#f87171"}
                             stop-opacity="0"
                         />
                     </linearGradient>
@@ -348,7 +388,7 @@
                 <polyline
                     points={linePoints}
                     fill="none"
-                    stroke={change24h >= 0 ? "#4ade80" : "#f87171"}
+                    stroke={change24h >= 0 ? "#16a34a" : "#f87171"}
                     stroke-width="1.5"
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -661,9 +701,9 @@
     }
 
     .change-badge.positive {
-        color: #4ade80;
-        background: rgba(74, 222, 128, 0.1);
-        border: 1px solid rgba(74, 222, 128, 0.2);
+        color: #16a34a;
+        background: rgba(22, 163, 74, 0.1);
+        border: 1px solid rgba(22, 163, 74, 0.2);
     }
 
     .change-badge.negative {
@@ -1001,5 +1041,20 @@
     /* Dark Mode Grid Override */
     :global([data-theme="dark"]) .grid-line {
         border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .placeholder-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--glass-border, rgba(255, 255, 255, 0.1));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--color-text);
+        text-transform: uppercase;
+        flex-shrink: 0;
     }
 </style>

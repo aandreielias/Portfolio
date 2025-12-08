@@ -13,6 +13,11 @@
         const cleanPath = path.startsWith("/") ? path.slice(1) : path;
         return `${BASE_URL}${cleanPath}`;
     }
+    // Helper to strip HTML tags
+    function stripHtml(html) {
+        if (!html) return "";
+        return html.replace(/<[^>]*>?/gm, "");
+    }
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -29,10 +34,26 @@
                 />
             {/if}
         </div>
-        <p class="summary">{project.description.substring(0, 100)}...</p>
+        <p class="summary">
+            {stripHtml(project.description).substring(0, 100)}...
+        </p>
         <div class="footer">
             <span class="status">{project.status || "Completed"}</span>
-            <span class="arrow">→</span>
+            <span class="arrow">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    style="image-rendering: pixelated;"
+                >
+                    <path
+                        d="M11 4H13V14H15V12H17V14H15V16H13V18H11V16H9V14H7V12H9V14H11V4Z"
+                        transform="rotate(-90 12 12)"
+                    />
+                </svg>
+            </span>
         </div>
     </div>
 </div>
@@ -108,7 +129,11 @@
 
     .arrow {
         color: var(--color-text-muted);
-        transition: transform 0.2s;
+        transition:
+            transform 0.2s,
+            color 0.2s;
+        display: inline-flex;
+        align-items: center;
     }
 
     .card:hover .arrow {

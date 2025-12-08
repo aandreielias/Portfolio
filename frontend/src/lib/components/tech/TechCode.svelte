@@ -133,18 +133,18 @@
         flex: 1;
         border-radius: 8px;
         overflow: hidden;
-        background: #282c34; /* Match CodeBlock background */
+        background: var(--code-bg); /* Match CodeBlock background */
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        border: 1px solid #181a1f;
+        border: 1px solid var(--glass-border);
     }
 
     .header {
-        background-color: #21252b;
+        background-color: var(--sidebar-bg);
         padding: 0.75rem 1rem;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        border-bottom: 1px solid #181a1f;
+        border-bottom: 1px solid var(--glass-border);
         z-index: 10;
         flex-shrink: 0;
     }
@@ -178,7 +178,7 @@
     .filename {
         font-family: "Fira Code", monospace;
         font-size: 0.9rem;
-        color: #abb2bf;
+        color: var(--color-text-muted);
         font-weight: 600;
     }
 
@@ -187,7 +187,7 @@
         position: relative;
         display: flex;
         overflow: hidden;
-        background: #282c34;
+        background: var(--code-bg);
     }
 
     .code-wrapper {

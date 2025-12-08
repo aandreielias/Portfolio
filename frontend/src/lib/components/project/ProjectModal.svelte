@@ -57,7 +57,7 @@
     {:else if project.id === "Portfolio"}
         <PortfolioDescription />
     {:else}
-        <p class="description">{project.description}</p>
+        <div class="description">{@html project.description}</div>
     {/if}
 
     {#if project.pdf && project.title !== "ERoots"}

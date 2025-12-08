@@ -4,6 +4,7 @@
 
     export let name;
 
+    // Smooth scroll to the specified element ID
     function scrollTo(id) {
         const element = document.getElementById(id);
         if (element) {
@@ -13,6 +14,7 @@
 
     let isDark = false;
 
+    // Toggle theme with a circular revealing animation
     function toggleTheme(event) {
         const x = event.clientX;
         const y = event.clientY;
@@ -22,6 +24,7 @@
             Math.max(y, innerHeight - y),
         );
 
+        // Fallback for browsers without View Transition API
         // @ts-ignore
         if (!document.startViewTransition) {
             isDark = !isDark;
@@ -29,67 +32,96 @@
             return;
         }
 
+        // Use View Transition API for smooth theme switch
         // @ts-ignore
         const transition = document.startViewTransition(async () => {
             isDark = !isDark;
             updateTheme();
         });
 
+        // Custom animation logic
         transition.ready.then(() => {
-            // Generate a random number between 0 and 1 to drive the unique animation
-            const randomFactor = Math.random();
+            const gridSize = 32;
+            const stepsPerFrame = 400; // Polygon resolution
+            const angleStep = (Math.PI * 2) / stepsPerFrame;
+            const duration = 750;
+            const fps = 60;
+            const totalFrames = Math.ceil((duration / 1000) * fps);
+            const keyframes = [];
 
-            const points = 60;
-            const angleStep = (Math.PI * 2) / points;
+            // Track max radius to ensure the circle only grows
+            const maxRadii = new Array(stepsPerFrame).fill(0);
 
-            // Use the random number to determine wave frequencies (must be integers to close the loop)
-            const freq1 = 2 + Math.floor(randomFactor * 3); // Range: 2, 3, 4
-            const freq2 = 4 + Math.floor(randomFactor * 3); // Range: 4, 5, 6
+            for (let f = 0; f <= totalFrames; f++) {
+                const linearProgress = f / totalFrames;
+                const progress = Math.pow(linearProgress, 3); // Cubic easing
 
-            // Use the random number for phase offset
-            const phase = randomFactor * Math.PI * 2;
+                // Randomize wave parameters for each frame
+                const randomFactor = Math.random();
+                const freq1 = 2 + Math.floor(randomFactor * 3);
+                const freq2 = 4 + Math.floor(randomFactor * 3);
+                const phase = randomFactor * Math.PI * 2;
+                const rBase = endRadius * 1.5 * progress;
 
-            const endPolygonPoints = [];
-            const startPolygonPoints = [];
+                const framePoints = [];
+                const frameCoords = [];
 
-            for (let i = 0; i < points; i++) {
-                const angle = i * angleStep;
+                for (let i = 0; i < stepsPerFrame; i++) {
+                    const angle = i * angleStep;
+                    let r = rBase;
 
-                // Start points are all at the click center
-                startPolygonPoints.push(`${x}px ${y}px`);
+                    if (rBase > 0) {
+                        const wave =
+                            0.15 * Math.sin(freq1 * angle + phase) +
+                            0.1 * Math.sin(freq2 * angle - phase);
+                        r = rBase * (1 + wave);
+                    }
 
-                // Calculate uneven radius using the random-derived function
-                // This creates a different "blob" shape every time
-                const wave =
-                    0.13 * Math.sin(freq1 * angle + phase) +
-                    0.08 * Math.sin(freq2 * angle - phase);
+                    // Enforce monotonic growth
+                    if (r < maxRadii[i]) {
+                        r = maxRadii[i];
+                    } else {
+                        maxRadii[i] = r;
+                    }
 
-                // Ensure the radius covers the screen (base multiplier + wave)
-                const r = endRadius * (1.5 + wave);
+                    const rawX = x + r * Math.cos(angle);
+                    const rawY = y + r * Math.sin(angle);
 
-                const px = x + r * Math.cos(angle);
-                const py = y + r * Math.sin(angle);
-                endPolygonPoints.push(`${px}px ${py}px`);
+                    // Snap to grid for pixelated effect
+                    const dx = rawX - x;
+                    const dy = rawY - y;
+                    const snappedDx = Math.round(dx / gridSize) * gridSize;
+                    const snappedDy = Math.round(dy / gridSize) * gridSize;
+                    const finalX = x + snappedDx;
+                    const finalY = y + snappedDy;
+
+                    frameCoords.push({ x: finalX, y: finalY });
+                }
+
+                // Construct polygon path
+                for (let i = 0; i < stepsPerFrame; i++) {
+                    const prevIndex = (i - 1 + stepsPerFrame) % stepsPerFrame;
+                    const curr = frameCoords[i];
+                    const prev = frameCoords[prevIndex];
+                    framePoints.push(`${curr.x}px ${prev.y}px`);
+                    framePoints.push(`${curr.x}px ${curr.y}px`);
+                }
+
+                keyframes.push({
+                    clipPath: `polygon(${framePoints.join(", ")})`,
+                    easing: "step-end",
+                });
             }
 
-            const clipPath = [
-                `polygon(${startPolygonPoints.join(", ")})`,
-                `polygon(${endPolygonPoints.join(", ")})`,
-            ];
-
-            document.documentElement.animate(
-                {
-                    clipPath: clipPath,
-                },
-                {
-                    duration: 700,
-                    easing: "ease-in",
-                    pseudoElement: "::view-transition-new(root)",
-                },
-            );
+            document.documentElement.animate(keyframes, {
+                duration: duration,
+                easing: "linear",
+                pseudoElement: "::view-transition-new(root)",
+            });
         });
     }
 
+    // Apply theme changes to the document
     function updateTheme() {
         if (isDark) {
             document.documentElement.setAttribute("data-theme", "dark");
@@ -102,7 +134,7 @@
 <header in:fly={{ y: -50, duration: 800, delay: 200 }} class="glass">
     <div class="container">
         <div class="logo">
-            <span class="name">Andrei Elias</span>
+            <span class="name gradient-text">Andrei Elias</span>
         </div>
         <nav>
             <button class="nav-link" on:click={() => scrollTo("projects")}
@@ -117,54 +149,36 @@
                 aria-label="Toggle Dark Mode"
             >
                 {#if isDark}
-                    <!-- Sun Icon -->
+                    <!-- Pixelated Sun Icon -->
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
+                        width="24"
+                        height="24"
                         viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        ><circle cx="12" cy="12" r="5"></circle><line
-                            x1="12"
-                            y1="1"
-                            x2="12"
-                            y2="3"
-                        ></line><line x1="12" y1="21" x2="12" y2="23"
-                        ></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"
-                        ></line><line
-                            x1="18.36"
-                            y1="18.36"
-                            x2="19.78"
-                            y2="19.78"
-                        ></line><line x1="1" y1="12" x2="3" y2="12"></line><line
-                            x1="21"
-                            y1="12"
-                            x2="23"
-                            y2="12"
-                        ></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"
-                        ></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"
-                        ></line></svg
+                        fill="currentColor"
+                        style="image-rendering: pixelated;"
                     >
+                        <path
+                            d="M8 8H16V16H8V8ZM10 2H14V6H10V2ZM10 18H14V22H10V18ZM2 10H6V14H2V10ZM18 10H22V14H18V10ZM5 5H7V7H5V5ZM17 5H19V7H17V5ZM17 17H19V19H17V17ZM5 17H7V19H5V17Z"
+                        />
+                    </svg>
                 {:else}
-                    <!-- Moon Icon -->
+                    <!-- Pixelated Moon Icon -->
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
+                        width="24"
+                        height="24"
                         viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        ><path
-                            d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
-                        ></path></svg
+                        fill="currentColor"
+                        style="image-rendering: pixelated;"
                     >
+                        <!-- Chunky Pixel Moon (Long Horizontal Tips) -->
+                        <rect x="6" y="8" width="6" height="8" />
+                        <rect x="8" y="5" width="6" height="3" />
+                        <rect x="8" y="16" width="6" height="3" />
+                        <rect x="11" y="3" width="8" height="2" />
+                        <rect x="11" y="19" width="8" height="2" />
+                    </svg>
                 {/if}
             </button>
         </nav>
@@ -216,7 +230,7 @@
 
     .nav-link:hover {
         color: var(--color-primary);
-        text-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+        text-shadow: 0 0 10px rgba(var(--color-primary-rgb), 0.3);
     }
 
     .theme-toggle {

@@ -15,7 +15,7 @@
     let error = null;
     let visibleColumns = 1;
 
-    // Resizing State
+    // Resizing state variables
     let panelSizes = [];
     let isResizing = false;
     let activeResizerIndex = -1;
@@ -33,14 +33,13 @@
         compiledData = null;
     }
 
-    // Switch away from description tab if entering split mode (2 or more columns)
+    // Automatically switch to run tab when in split view mode
     $: if (visibleColumns >= 2 && activeTab === "description") {
         activeTab = "run";
     }
 
-    // Initialize or Reset panel sizes when column count changes
+    // Initialize or reset panel sizes if column count updates
     $: if (visibleColumns) {
-        // Only reset if the count changes, to preserve sizes during other updates if needed
         if (panelSizes.length !== visibleColumns) {
             panelSizes = new Array(visibleColumns).fill(100 / visibleColumns);
         }
@@ -54,7 +53,6 @@
         startX = event.clientX;
         startSizes = [...panelSizes];
 
-        // Prevent text selection during drag
         document.body.style.userSelect = "none";
         document.body.style.cursor = "col-resize";
 
@@ -75,7 +73,7 @@
         const newLeft = startSizes[leftIndex] + dxPercent;
         const newRight = startSizes[rightIndex] - dxPercent;
 
-        // Calculate min percent dynamically based on 340px
+        // Ensure panels remain above minimum width
         const minPercent = (MIN_PANEL_WIDTH_PX / containerWidth) * 100;
 
         if (newLeft > minPercent && newRight > minPercent) {
@@ -104,9 +102,9 @@
     maxColumns={3}
     minPanelWidth={375}
 >
-    <!-- Layout Wrapper -->
+    <!-- Layout Container -->
     <div class="layout-container" bind:this={layoutContainer} style="gap: 0;">
-        <!-- Left Panel: Description (Index 0 in 2+ cols) -->
+        <!-- Left Panel: Description -->
         {#if visibleColumns >= 2}
             <div
                 class="panel description-panel"
@@ -121,14 +119,14 @@
                 />
             </div>
 
-            <!-- Resizer 0 -->
+            <!-- Resizer Handle 0 -->
             <div class="resizer" on:pointerdown={(e) => startResize(0, e)}>
                 <div class="resizer-line"></div>
             </div>
         {/if}
 
         {#if visibleColumns === 3}
-            <!-- Middle Panel: Run (Index 1) -->
+            <!-- Middle Panel: Run -->
             <div
                 class="panel run-panel"
                 style="width: {panelSizes[1]}%; flex: none;"
@@ -161,12 +159,12 @@
                 </div>
             </div>
 
-            <!-- Resizer 1 -->
+            <!-- Resizer Handle 1 -->
             <div class="resizer" on:pointerdown={(e) => startResize(1, e)}>
                 <div class="resizer-line"></div>
             </div>
 
-            <!-- Right Panel: Code (Index 2) -->
+            <!-- Right Panel: Code -->
             <div
                 class="panel code-panel"
                 style="width: {panelSizes[2]}%; flex: none;"
@@ -178,8 +176,7 @@
                 </div>
             </div>
         {:else}
-            <!-- Columns is 1 or 2. -->
-            <!-- If 2 cols, this is Panel Index 1. If 1 col, standard flex. -->
+            <!-- Logic for 1 or 2 Panel Layout -->
             <div
                 class="main-panel"
                 style={visibleColumns === 2
@@ -225,8 +222,6 @@
                                     {error.message}
                                 </div>
                             {:else if compiledData}
-                                <!-- DEBUG: Remove in production -->
-                                <!-- <pre style="color:white; font-size: 10px;">{JSON.stringify(compiledData)}</pre> -->
                                 <TechRun
                                     techId={techItem.id}
                                     data={compiledData}
@@ -263,7 +258,7 @@
         {/if}
     </div>
 
-    <!-- Hidden Compiler (always runs) -->
+    <!-- Hidden Compiler Component -->
     <div style="display: none;">
         <TechCompiler
             files={techItem.files}
@@ -288,7 +283,6 @@
         flex-direction: column;
         overflow: hidden;
         min-width: 0;
-        /* Border handled by resizer aesthetics or individual styling */
     }
 
     .resizer {

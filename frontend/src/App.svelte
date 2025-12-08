@@ -12,14 +12,17 @@
   import Header from "./lib/components/layout/Header.svelte";
   import Footer from "./lib/components/layout/Footer.svelte";
 
+  // Environment variables
   const name = import.meta.env.VITE_NAME || "Portfolio";
   const email = import.meta.env.VITE_EMAIL || "email@example.com";
 
+  // State
   let selectedProject = null;
   let selectedTechItem = null;
   let showContactModal = false;
   let scrollY = 0;
 
+  // Initialize data on mount
   onMount(async () => {
     const techs = await ApiService.fetchAllTechs();
     techRegistry.set(techs);
@@ -27,6 +30,7 @@
     projectRegistry.set(projects);
   });
 
+  // Modal controls
   function openProject(project) {
     selectedProject = project;
   }
@@ -64,7 +68,7 @@
 <section class="hero">
   <div class="hero-content">
     <h1 class="gradient-text">Hello, I'm {name}.</h1>
-    <p class="subtitle">Student for System Engineering and System Design</p>
+    <p class="subtitle">Student of System Engineering and System Design</p>
     <div class="actions">
       <button class="primary-btn" on:click={() => scrollTo("projects")}
         >View Work</button
@@ -81,13 +85,12 @@
       width="24"
       height="24"
       viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      fill="currentColor"
+      style="image-rendering: pixelated;"
     >
-      <path d="M7 13l5 5 5-5M7 6l5 5 5-5" />
+      <path
+        d="M11 4H13V14H15V12H17V14H15V16H13V18H11V16H9V14H7V12H9V14H11V4Z"
+      />
     </svg>
   </div>
 </section>
@@ -141,7 +144,6 @@
     justify-content: center;
     align-items: center;
     position: relative;
-    /* overflow: hidden; Removed to allow fixed bg to work if it was inside, but now it's outside */
   }
 
   .hero-bg {
@@ -153,7 +155,7 @@
     height: 80vw;
     background: radial-gradient(
       circle,
-      rgba(99, 102, 241, 0.15) 0%,
+      rgba(var(--color-primary-rgb), 0.15) 0%,
       rgba(0, 0, 0, 0) 70%
     );
     filter: blur(80px);
@@ -186,21 +188,21 @@
   }
 
   .primary-btn {
-    background: rgba(79, 70, 229, 0.8);
+    background: rgba(var(--color-primary-rgb), 0.8);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    color: white;
+    color: white; /* Keep white for contrast on primary */
     padding: 0.8rem 2rem;
     border-radius: 50px;
     font-size: 1.1rem;
-    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+    box-shadow: 0 4px 15px rgba(var(--color-primary-rgb), 0.4);
     border: 1px solid rgba(255, 255, 255, 0.2);
   }
 
   .primary-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.6);
-    background: rgba(79, 70, 229, 0.9);
+    box-shadow: 0 8px 25px rgba(var(--color-primary-rgb), 0.6);
+    background: rgba(var(--color-primary-rgb), 0.9);
   }
 
   .secondary-btn {

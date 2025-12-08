@@ -16,7 +16,7 @@
     {
         "id": "Portfolio",
         "title": "Portfolio Website",
-        "description": "A modern, responsive portfolio website built with Svelte.",
+        "description": "<p>A comprehensive showcase of my technical skills and design philosophy, built from the ground up to be performant, responsive, and visually engaging. This project serves not just as a portfolio, but as a demonstration of modern web engineering practices.</p><h4>Core Architecture</h4><ul><li><strong>Frontend:</strong> Svelte & Vite for a reactive, compiled-away UI.</li><li><strong>Backend:</strong> Spring Boot (Java 21) handling API requests.</li><li><strong>Deployment:</strong> Containerized with Docker and deployed via Koyeb.</li></ul><h4>Key Features</h4><ul><li><strong>Theme System:</strong> Sophisticated light/dark mode with custom transition animations.</li><li><strong>Live Tech Demos:</strong> Integrated simulators running directly in the browser.</li><li><strong>Responsive Design:</strong> Glassmorphism-inspired UI adapting to all devices.</li></ul>",
         "logo": "/uploads/projects/Portfolio/logo.svg",
         "cover": "/uploads/projects/Portfolio/landing.png",
         "pdf": null,

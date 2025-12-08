@@ -1,68 +1,59 @@
-// Live Market Viewer - Logic
-// Uses CoinGecko API for real-time market data & 24h history
-// Version 2.0 - Added Universal Search & Interactive Graph
+// Market Viewer Logic - Handles data fetching from Yahoo Finance via CORS proxy
+
+const CORS_PROXY = "https://corsproxy.io/?";
 
 class MarketViewer {
     constructor() {
-        this.baseUrl = "https://api.coingecko.com/api/v3";
-        this.selectedSymbol = "bitcoin";
+        this.baseUrl = "https://query1.finance.yahoo.com/v8/finance/chart";
+        this.searchUrl = "https://query2.finance.yahoo.com/v1/finance/search";
     }
 
-    // New: Universal Search Function
+    // Search for stocks, crypto, or ETFs
     async search(query) {
         if (!query || query.length < 2) return [];
         try {
-            const res = await fetch(`${this.baseUrl}/search?query=${query}`);
+            const res = await fetch(`${CORS_PROXY}${this.searchUrl}?q=${encodeURIComponent(query)}`);
             const data = await res.json();
-            return data.coins || [];
+
+            // Filter for valid Yahoo Finance quotes and Map to simple objects
+            return (data.quotes || [])
+                .filter(q => q.isYahooFinance)
+                .map(q => ({
+                    symbol: q.symbol,
+                    name: q.shortname || q.longname,
+                    type: q.typeDisp
+                }));
         } catch (error) {
-            console.error("Search Error:", error);
+            console.error("Search failed:", error);
             return [];
         }
     }
 
-    // Fetch 24-hour historical data for the chart
-    async fetchChart(id) {
+    // Fetch historical chart data and current price
+    async fetchMarketData(symbol) {
         try {
-            const response = await fetch(
-                `${this.baseUrl}/coins/${id}/market_chart?vs_currency=usd&days=1`
-            );
-            if (!response.ok) throw new Error("API Limit Reached");
-
+            // Request 1 day of data with 5-minute intervals
+            const url = `${CORS_PROXY}${this.baseUrl}/${symbol}?range=1d&interval=5m`;
+            const response = await fetch(url);
             const data = await response.json();
-            // Data format: [[timestamp, price], [timestamp, price], ...]
-            return data.prices || [];
-        } catch (error) {
-            console.error("Chart Fetch Error:", error);
-            return [];
-        }
-    }
 
-    // Fetch current price and 24h stats
-    async fetchCurrentStats(id) {
-        try {
-            const response = await fetch(
-                `${this.baseUrl}/simple/price?ids=${id}&vs_currencies=usd&include_24hr_change=true`
-            );
-            const data = await response.json();
-            return data[id] || null;
+            const result = data.chart.result[0];
+            const meta = result.meta;
+            const quotes = result.indicators.quote[0];
+
+            // Calculate percentage change from previous close
+            const price = meta.regularMarketPrice;
+            const prevClose = meta.previousClose;
+            const change = prevClose ? ((price - prevClose) / prevClose) * 100 : 0;
+
+            return {
+                price: price,
+                change24h: change,
+                history: result.timestamp.map((t, i) => [t * 1000, quotes.close[i]])
+            };
         } catch (error) {
-            console.error("Stats Fetch Error:", error);
+            console.error("Data fetch failed:", error);
             return null;
         }
-    }
-
-    // Main refresh loop
-    async refresh(id) {
-        const [history, stats] = await Promise.all([
-            this.fetchChart(id),
-            this.fetchCurrentStats(id)
-        ]);
-
-        return {
-            history,
-            currentPrice: stats.usd,
-            change24h: stats.usd_24h_change
-        };
     }
 }

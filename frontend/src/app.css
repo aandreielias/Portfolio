@@ -1,63 +1,80 @@
 :root {
-  /* Light Mode (Default) */
-  --color-bg: #ffffff;
-  --color-surface: #f3f4f6;
-  --color-primary: #4f46e5;
-  --color-secondary: #e11d48;
-  --color-text: #171717;
-  --color-text-muted: #525252;
+  /* Light Mode (Retro Future Light - Beige/Red) */
+  --color-bg: #f2eee3;
+  /* Vintage Parchment/Beige */
+  --color-surface: #fbf9f4;
+  /* Lighter Beige Surface */
+  --color-primary: #8b0000;
+  --color-primary-rgb: 139, 0, 0;
+  /* Deep Dark Red */
+  --color-secondary: #a1887f;
+  /* Taupe/Dark Beige */
+  --color-text: #1c1917;
+  --color-text-muted: #57534e;
 
-  --radius: 24px;
+  --radius: 6px;
+  /* Boxier for retro feel */
 
-  --font-main: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'Fira Code', monospace;
+  --font-main: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-main);
+  --font-mono: 'Space Mono', monospace;
 
-  --shadow-sm: 0 2px 8px 0 rgb(0 0 0 / 0.04);
-  --shadow-md: 0 8px 24px -4px rgb(0 0 0 / 0.08);
-  --shadow-lg: 0 20px 40px -8px rgb(0 0 0 / 0.12);
-  --shadow-glow: 0 0 40px rgba(79, 70, 229, 0.25);
+  --shadow-sm: 2px 2px 0px 0px rgba(0, 0, 0, 0.1);
+  --shadow-md: 4px 4px 0px 0px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 8px 8px 0px 0px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 40px rgba(139, 0, 0, 0.2);
 
-  --glass-bg: rgba(255, 255, 255, 0.25);
-  --glass-border: rgba(255, 255, 255, 0.4);
-  --glass-panel-bg: rgba(255, 255, 255, 0.35);
-  --scrollbar-thumb: #d4d4d4;
+  --glass-bg: rgba(242, 238, 227, 0.7);
+  --glass-border: rgba(139, 0, 0, 0.15);
+  /* Red tinted border */
+  --glass-panel-bg: rgba(251, 249, 244, 0.85);
+  --scrollbar-thumb: #a8a29e;
 
-  --btn-secondary-bg: rgba(255, 255, 255, 0.3);
-  --btn-secondary-border: rgba(255, 255, 255, 0.4);
-  --btn-secondary-hover-bg: rgba(255, 255, 255, 0.5);
-  --gradient-heading: linear-gradient(to right, #171717, #525252);
-  --loading-bar-bg: rgba(0, 0, 0, 0.05);
+  --btn-secondary-bg: rgba(0, 0, 0, 0.05);
+  --btn-secondary-border: rgba(0, 0, 0, 0.15);
+  --btn-secondary-hover-bg: rgba(0, 0, 0, 0.1);
+  --gradient-heading: linear-gradient(to right, #1c1917, #57534e);
+  --loading-bar-bg: rgba(0, 0, 0, 0.08);
 
-  --code-bg: rgba(255, 255, 255, 0.3);
-  --sidebar-bg: rgba(255, 255, 255, 0.2);
-  --hover-bg: rgba(255, 255, 255, 0.3);
-  --code-view-bg: rgba(255, 255, 255, 0.2);
+  --code-bg: #dadad6;
+  --sidebar-bg: #e6e6e2;
+  --hover-bg: rgba(0, 0, 0, 0.05);
+  --code-view-bg: #e1e1de;
 }
 
 [data-theme="dark"] {
-  --color-bg: #000000;
-  --color-surface: #121212;
-  --color-primary: #818cf8;
-  --color-secondary: #fb7185;
-  --color-text: #ffffff;
+  /* Dark Mode (Darkroom Red) */
+  --color-bg: #1a0f0f;
+  /* very dark red-black */
+  --color-surface: #2b1d1d;
+  --color-primary: #f87171;
+  --color-primary-rgb: 248, 113, 113;
+  /* Bright Soft Red */
+  --color-secondary: #d6d3d1;
+  /* Light Warm Grey/Beige */
+  --color-text: #fafafa;
   --color-text-muted: #a1a1aa;
-  --shadow-glow: 0 0 50px rgba(99, 102, 241, 0.2);
 
-  --glass-bg: rgba(20, 20, 20, 0.3);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-panel-bg: rgba(30, 30, 30, 0.3);
-  --scrollbar-thumb: #333;
+  --shadow-sm: 2px 2px 0px 0px rgba(0, 0, 0, 0.5);
+  --shadow-md: 4px 4px 0px 0px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 8px 8px 0px 0px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 50px rgba(248, 113, 113, 0.15);
 
-  --btn-secondary-bg: rgba(255, 255, 255, 0.08);
-  --btn-secondary-border: rgba(255, 255, 255, 0.1);
-  --btn-secondary-hover-bg: rgba(255, 255, 255, 0.15);
-  --gradient-heading: linear-gradient(to right, #fff, #a1a1aa);
+  --glass-bg: rgba(24, 24, 27, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-panel-bg: rgba(39, 39, 42, 0.7);
+  --scrollbar-thumb: #3f3f46;
+
+  --btn-secondary-bg: rgba(255, 255, 255, 0.05);
+  --btn-secondary-border: rgba(255, 255, 255, 0.15);
+  --btn-secondary-hover-bg: rgba(255, 255, 255, 0.1);
+  --gradient-heading: linear-gradient(to right, #fafafa, #a1a1aa);
   --loading-bar-bg: rgba(255, 255, 255, 0.1);
 
-  --code-bg: rgba(0, 0, 0, 0.3);
-  --sidebar-bg: rgba(0, 0, 0, 0.3);
-  --hover-bg: rgba(255, 255, 255, 0.08);
-  --code-view-bg: rgba(0, 0, 0, 0.2);
+  --code-bg: #000000;
+  --sidebar-bg: #111113;
+  --hover-bg: rgba(255, 255, 255, 0.05);
+  --code-view-bg: #050505;
 }
 
 * {
@@ -76,9 +93,11 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  /* Retro Grid Background */
   background-image:
-    radial-gradient(circle at 15% 50%, rgba(79, 70, 229, 0.08), transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(225, 29, 72, 0.08), transparent 25%);
+    linear-gradient(rgba(128, 128, 128, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(128, 128, 128, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
   background-attachment: fixed;
 }
 
@@ -96,12 +115,14 @@ h6 {
   color: var(--color-text);
   font-weight: 700;
   line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 a {
   color: var(--color-primary);
   text-decoration: none;
   transition: color 0.2s;
+  font-weight: 500;
 }
 
 a:hover {
@@ -109,27 +130,30 @@ a:hover {
 }
 
 button {
-  font-family: inherit;
+  font-family: var(--font-mono);
+  /* Technical feel for interactions */
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  letter-spacing: -0.01em;
 }
 
 /* Utilities */
 .glass {
   background: var(--glass-bg);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  /* Retro sharp shadow */
+  box-shadow: var(--shadow-sm);
 }
 
 .glass-panel {
   background: var(--glass-panel-bg);
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--glass-border);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .gradient-text {
@@ -141,17 +165,18 @@ button {
 
 /* Scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 12px;
 }
 
 ::-webkit-scrollbar-track {
   background: var(--color-bg);
+  border-left: 1px solid var(--glass-border);
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
-  border-radius: 5px;
-  border: 2px solid var(--color-bg);
+  border: 3px solid var(--color-bg);
+  border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb:hover {

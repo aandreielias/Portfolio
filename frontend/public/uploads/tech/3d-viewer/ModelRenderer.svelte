@@ -23,7 +23,7 @@
         loadModel();
         animate();
 
-        // Handle Resize
+        // Handle window resizing
         resizeObserver = new ResizeObserver(() => {
             if (container) {
                 const width = container.clientWidth;
@@ -44,38 +44,36 @@
     });
 
     function init() {
-        // ... (init code remains same, referencing it correctly is tricky in replacement without repeating)
-        // Re-implementing init to ensure variables are in scope if this tool replaces whole block
         const width = container.clientWidth;
         const height = container.clientHeight;
 
-        // Scene
+        // Initialize Scene
         scene = new THREE.Scene();
-        // Transparent background to blend with UI
         scene.background = null;
 
-        // Camera
+        // Initialize Camera
         camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-        camera.position.set(0, 0, 80); // Zoomed out a bit
+        camera.position.set(0, 0, 80);
 
-        // Renderer
+        // Initialize Renderer
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(width, height);
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.outputColorSpace = THREE.SRGBColorSpace;
         container.appendChild(renderer.domElement);
 
-        // Controls
+        // Initialize Controls
         controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
         controls.minDistance = 20;
         controls.maxDistance = 200;
-        // Lock vertical rotation (horizontal only, "turntable" style)
+
+        // Restrict rotation to horizontal axis only
         controls.minPolarAngle = Math.PI / 2;
         controls.maxPolarAngle = Math.PI / 2;
 
-        // Lights
+        // Initialize Lights
         ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
         scene.add(ambientLight);
 
@@ -85,7 +83,6 @@
     }
 
     function loadModel() {
-        console.log("Loading model from:", MODEL_PATH);
         const textureLoader = new THREE.TextureLoader();
         const objLoader = new OBJLoader();
 
@@ -96,37 +93,34 @@
                 tex.colorSpace = THREE.SRGBColorSpace;
             },
             undefined,
-            (err) => console.error("Texture Load Error:", err),
+            (err) => console.error("Error loading texture:", err),
         );
 
-        // Load OBJ
+        // Load OBJ Model
         objLoader.load(
             MODEL_PATH,
             (object) => {
                 object.traverse((child) => {
                     if (child.isMesh) {
                         child.material.map = texture;
-                        // Determine material properties
                         child.material.roughness = 0.6;
                         child.material.metalness = 0.0;
                         child.material.needsUpdate = true;
                     }
                 });
 
-                // Center and Scale
+                // Center and Scale the model
                 const box = new THREE.Box3().setFromObject(object);
-                const center = box.getCenter(new THREE.Vector3());
                 const size = box.getSize(new THREE.Vector3());
 
                 const maxDim = Math.max(size.x, size.y, size.z);
-                const scale = 50 / maxDim; // Normalize to approx 50 units
+                const scale = 50 / maxDim;
 
                 object.scale.set(scale, scale, scale);
-                // Re-center after scaling is strictly local
-                // Based on image, model is sideways. Rotate it upright.
-                object.rotation.x = -Math.PI / 2; // Rotate 90 deg back
+                // Correct orientation
+                object.rotation.x = -Math.PI / 2;
 
-                // Adjust position manually to center visual mass
+                // Adjust position
                 object.position.x = 0;
                 object.position.y = -28;
                 object.position.z = 0;
@@ -140,7 +134,7 @@
                 }
             },
             (error) => {
-                console.error("An error happened loading the model", error);
+                console.error("Error loading model:", error);
                 isLoading = false;
             },
         );
@@ -187,7 +181,7 @@
         height: 100%;
         position: relative;
         overflow: hidden;
-        background: #f0f0f0; /* Light gray background */
+        background: #f0f0f0;
         border-radius: var(--radius);
     }
 
@@ -243,7 +237,7 @@
         background: rgba(0, 0, 0, 0.7);
         backdrop-filter: blur(10px);
         padding: 0.8rem 1.5rem;
-        border-radius: 999px; /* Fully rounded pill shape */
+        border-radius: 999px;
         border: 1px solid rgba(255, 255, 255, 0.1);
         color: white;
         z-index: 10;

@@ -5,6 +5,7 @@
 
     const dispatch = createEventDispatcher();
 
+    // Environment variables for personalization
     const name = import.meta.env.VITE_NAME;
     const email = import.meta.env.VITE_EMAIL;
     const phone = import.meta.env.VITE_PHONE;
@@ -89,7 +90,7 @@
                     <div class="about-container">
                         <div class="about-text">
                             <p>
-                                I'm {name}, a student for System Engineering and
+                                I'm {name}, a student of System Engineering and
                                 System Design and a passion for programming.
                             </p>
                             <p>
@@ -164,14 +165,14 @@
         display: flex;
         gap: 2rem;
         height: 100%;
-        overflow: hidden; /* Prevent double scrollbars */
+        overflow: hidden;
     }
 
     .main-column {
         flex: 1;
         display: flex;
         flex-direction: column;
-        min-width: 0; /* Important for flex children */
+        min-width: 0;
     }
 
     .side-column {
@@ -182,10 +183,9 @@
         gap: 1.5rem;
         overflow-y: auto;
         max-height: 100%;
-        padding-right: 0.5rem; /* Space for scrollbar */
+        padding-right: 0.5rem;
     }
 
-    /* Side Column Scrollbar */
     .side-column::-webkit-scrollbar {
         width: 4px;
     }
@@ -258,7 +258,6 @@
         min-height: 0;
     }
 
-    /* Custom Scrollbar */
     .content-area::-webkit-scrollbar {
         width: 6px;
     }
@@ -288,7 +287,7 @@
         border-radius: 50px;
         border: 1px solid var(--glass-border);
         width: fit-content;
-        margin-left: auto; /* Center horizontally if container allows */
+        margin-left: auto;
         margin-right: auto;
     }
 
@@ -298,7 +297,7 @@
         padding: 0.5rem 1.5rem;
         border-radius: 25px;
         font-size: 0.9rem;
-        border: none; /* Remove border from buttons as container has it */
+        border: none;
         cursor: pointer;
         transition: all 0.2s;
     }
@@ -354,30 +353,22 @@
         border-radius: var(--radius);
         object-fit: cover;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        /* Align with tabs? The tabs have margin-bottom 1rem. 
-           The image is in side-column. 
-           If we want the top of the image to align with the top of the tabs, 
-           we just need to ensure they start at the same y-position.
-           Since they are flex siblings, they start at the top.
-        */
     }
 
     @media (max-width: 768px) {
         .modal-content-grid {
-            flex-direction: column-reverse; /* Image on top? Or bottom? */
-            /* User said "pictures top should begin in the row where you can switch tabs" */
-            /* On mobile, maybe stack image on top of tabs? */
+            flex-direction: column-reverse;
             overflow-y: auto;
         }
 
         .side-column {
-            width: 100%; /* Full width on mobile */
+            width: 100%;
             margin: 0 auto;
             flex-shrink: 0;
         }
 
         .main-column {
-            overflow: visible; /* Let the whole modal scroll */
+            overflow: visible;
         }
 
         .content-area {

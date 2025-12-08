@@ -26,7 +26,7 @@
     let initialTranslateX = 0;
     let initialTranslateY = 0;
 
-    // Resize state
+    // State for resizing logic
     let resizableWidth = null;
     let resizableHeight = null;
     let isResizing = false;
@@ -46,33 +46,30 @@
 
     function toggleMaximize() {
         if (!isMaximized) {
-            // About to maximize
+            // Calculate potential columns based on window width
             const windowWidth = window.innerWidth;
             let potentialColumns = 1;
 
             if (minPanelWidth > 0) {
-                // Calculate based on strict panel width requirements
                 potentialColumns = Math.floor(windowWidth / minPanelWidth);
             } else if (modalContent) {
                 const rect = modalContent.getBoundingClientRect();
                 const currentWidth = rect.width;
-                // Calculate how many columns fit based on ratio
                 const ratio = windowWidth / currentWidth;
                 potentialColumns = Math.floor(ratio);
             }
 
-            // Clamp between 1 and maxColumns
+            // Ensure column count is within valid bounds
             visibleColumns = Math.max(
                 1,
                 Math.min(potentialColumns, maxColumns),
             );
         } else {
-            // Restoring
+            // Reset to single column when not maximized
             visibleColumns = 1;
         }
 
         isMaximized = !isMaximized;
-        // Reset collapse state when expanding
         if (isMaximized) {
             isCollapsed = false;
         }
@@ -86,9 +83,9 @@
 
     function handlePointerDown(event) {
         if (event.target.closest("button") || event.target.closest("a")) return;
-        // Disable drag if maximized
         if (isMaximized) return;
 
+        // Initialize drag state
         isDragging = true;
         startX = event.clientX;
         startY = event.clientY;
@@ -107,6 +104,7 @@
         let newX = initialTranslateX + dx;
         let newY = initialTranslateY + dy;
 
+        // Constrain modal within viewport bounds
         if (modalContent) {
             const rect = modalContent.getBoundingClientRect();
             const xLimit = (window.innerWidth - rect.width) / 2;
@@ -130,17 +128,16 @@
         event.currentTarget.releasePointerCapture(event.pointerId);
     }
 
-    // Resize Handlers
     function handleResizeStart(event, direction) {
         event.preventDefault();
         event.stopPropagation();
 
-        // Disable resize if maximized
         if (isMaximized) return;
 
         activeResizeHandle = event.currentTarget;
         activeResizeHandle.setPointerCapture(event.pointerId);
 
+        // Initialize resize state
         isResizing = true;
         resizeDirection = direction;
         startResizeX = event.clientX;
@@ -152,7 +149,6 @@
         startResizeTX = translateX;
         startResizeTY = translateY;
 
-        // Initialize resizable values if they are null
         if (!resizableWidth) resizableWidth = `${rect.width}px`;
         if (!resizableHeight) resizableHeight = `${rect.height}px`;
 
@@ -171,7 +167,7 @@
         let newTX = startResizeTX;
         let newTY = startResizeTY;
 
-        // Calculate raw new dimensions
+        // Adjust dimensions based on direction
         if (resizeDirection.includes("e")) {
             newW = startResizeWidth + dx;
         } else if (resizeDirection.includes("w")) {
@@ -184,14 +180,14 @@
             newH = startResizeHeight - dy;
         }
 
-        // Constraints
+        // Enforce minimum size limits
         if (newW < 300) newW = 300;
         if (newH < 200) newH = 200;
 
-        // Calculate position shifts based on ACTUAL dimension changes
         const deltaW = newW - startResizeWidth;
         const deltaH = newH - startResizeHeight;
 
+        // Adjust position to keep center or opposite edge fixed
         if (resizeDirection.includes("e")) {
             newTX = startResizeTX + deltaW / 2;
         } else if (resizeDirection.includes("w")) {
@@ -237,6 +233,7 @@
     });
 </script>
 
+<!-- Backdrop handles closing on click outside -->
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div
@@ -244,6 +241,7 @@
     on:click={close}
     transition:fade={{ duration: 200 }}
 >
+    <!-- Main Modal Container -->
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div
@@ -275,7 +273,7 @@
             easing: quintOut,
         }}
     >
-        <!-- Resize Handles -->
+        <!-- Resize Handles (visible only when not maximized) -->
         {#if !isMaximized}
             <div
                 class="resize-handle n"
@@ -372,15 +370,13 @@
         height: var(--height);
         max-height: var(--max-height);
         border-radius: var(--radius);
-        padding: 0; /* Remove padding to allow full-width header */
+        padding: 0;
         position: relative;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         border: 1px solid var(--glass-border);
         display: flex;
         flex-direction: column;
-        /* Important for transform to work as expected without layout shifts */
         will-change: transform;
-        /* overflow: hidden; Removed to allow resize handles to be grabbed easily if needed, but keeping handles inside for now */
         overflow: hidden;
         transition:
             width 0.3s ease,
@@ -516,20 +512,18 @@
         align-items: center;
         justify-content: space-between;
         width: 100%;
-        /* Move padding here to make the drag area larger */
         padding: 3rem 3rem 1.5rem 3rem;
         border-bottom: 1px solid var(--glass-border);
         flex-shrink: 0;
-        user-select: none; /* Prevent text selection while dragging */
-        background: var(--glass-panel-bg); /* Ensure header has background */
+        user-select: none;
+        background: var(--glass-panel-bg);
         transition: padding 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Center text when collapsed */
     .modal-content.collapsed .modal-header {
         padding-top: 1rem;
         padding-bottom: 1rem;
-        border-bottom: none; /* Optional: remove border when collapsed for cleaner look */
+        border-bottom: none;
     }
 
     .modal-header:active {
@@ -546,13 +540,12 @@
         -webkit-text-fill-color: transparent;
     }
 
-    /* Smooth collapse animation wrapper */
     .body-wrapper {
         display: grid;
         grid-template-rows: 1fr;
         transition: grid-template-rows 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        flex: 1; /* Take remaining vertical space */
-        min-height: 0; /* Allow shrinking below content size */
+        flex: 1;
+        min-height: 0;
     }
 
     .body-wrapper.collapsed {
@@ -563,10 +556,9 @@
         flex: 1;
         display: flex;
         flex-direction: column;
-        /* Ensure content doesn't get cut off if it's scrollable */
         min-height: 0;
-        padding: 2rem 3rem 3rem 3rem; /* Add padding to body */
-        overflow: hidden; /* Required for grid transition to hide content */
+        padding: 2rem 3rem 3rem 3rem;
+        overflow: hidden;
         transition:
             padding 0.4s cubic-bezier(0.16, 1, 0.3, 1),
             opacity 0.3s ease;
@@ -583,7 +575,6 @@
         overflow-y: auto;
     }
 
-    /* Custom Scrollbar */
     .modal-body.scrollable::-webkit-scrollbar {
         width: 8px;
     }

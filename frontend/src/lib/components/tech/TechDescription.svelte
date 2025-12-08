@@ -1285,7 +1285,7 @@
         </div>
     {:else}
         <div class="general-desc">
-            <p>{description || "No description available."}</p>
+            {@html description || "No description available."}
         </div>
     {/if}
 </div>
@@ -1409,14 +1409,6 @@
     p {
         margin-bottom: 1rem;
         color: var(--color-text-muted);
-    }
-
-    .math-desc {
-        font-style: italic;
-        font-size: 0.95rem;
-        margin-bottom: 1rem;
-        color: var(--color-text);
-        opacity: 0.8;
     }
 
     ul {
@@ -1632,12 +1624,5 @@
         font-size: 0.9rem;
         color: var(--color-text-muted);
         line-height: 1.4;
-    }
-
-    .section-intro {
-        font-size: 1.05rem;
-        margin-bottom: 1.5rem;
-        color: var(--color-text);
-        opacity: 0.9;
     }
 </style>

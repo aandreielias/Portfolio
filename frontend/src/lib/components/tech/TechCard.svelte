@@ -1,6 +1,10 @@
 <script>
     export let techItem;
     export let onClick;
+    function stripHtml(html) {
+        if (!html) return "";
+        return html.replace(/<[^>]*>?/gm, "");
+    }
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -12,10 +16,25 @@
             <span class="language-badge">{techItem.language}</span>
         </div>
         <p class="description">
-            {techItem.description || "No description available."}
+            {stripHtml(techItem.description) || "No description available."}
         </p>
         <div class="footer">
-            <span class="cta">View Demo &rarr;</span>
+            <span class="cta">
+                View Demo
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    style="image-rendering: pixelated; margin-left: 0.5rem; vertical-align: middle;"
+                >
+                    <path
+                        d="M11 4H13V14H15V12H17V14H15V16H13V18H11V16H9V14H7V12H9V14H11V4Z"
+                        transform="rotate(-90 12 12)"
+                    />
+                </svg>
+            </span>
         </div>
     </div>
 </div>
@@ -63,9 +82,9 @@
     }
 
     .language-badge {
-        background: rgba(99, 102, 241, 0.1);
+        background: rgba(var(--color-primary-rgb), 0.1);
         color: var(--color-primary);
-        border: 1px solid rgba(99, 102, 241, 0.2);
+        border: 1px solid rgba(var(--color-primary-rgb), 0.2);
         padding: 0.25rem 0.75rem;
         border-radius: 20px;
         font-size: 0.75rem;
@@ -81,6 +100,7 @@
         color: var(--color-text-muted);
         display: -webkit-box;
         -webkit-line-clamp: 3;
+        line-clamp: 3;
         -webkit-box-orient: vertical;
         overflow: hidden;
         line-height: 1.6;
