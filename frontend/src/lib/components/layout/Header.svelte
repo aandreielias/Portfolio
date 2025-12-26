@@ -2,8 +2,6 @@
   import { onMount } from "svelte";
   import { fade, fly } from "svelte/transition";
 
-  export let name;
-
   // Smooth scroll to the specified element ID
   function scrollTo(id) {
     const element = document.getElementById(id);
@@ -72,21 +70,5 @@
   .nav-link:hover {
     color: var(--color-primary);
     text-shadow: 0 0 10px rgba(var(--color-primary-rgb), 0.3);
-  }
-
-  .theme-toggle {
-    background: none;
-    border: none;
-    color: var(--color-text);
-    cursor: pointer;
-    padding: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.2s;
-  }
-
-  .theme-toggle:hover {
-    color: var(--color-primary);
   }
 </style>

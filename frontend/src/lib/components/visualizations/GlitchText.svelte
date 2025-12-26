@@ -1,37 +1,86 @@
-<script>
-  import { onMount, onDestroy } from "svelte";
+<script context="module">
   import { glitchChars } from "../../utils/glitchCharacters.js";
 
-  export let text = "Hello, my name is";
-  export let speed = 16; // 60fps ~= 16.67ms
+  export class GlitchString {
+    constructor(originalText) {
+      this.originalText = originalText;
+      this.chars = originalText.split("").map((char) => ({
+        original: char,
+        current: char,
+        glitchType: null, // null, 'random', '?', 'block'
+        glitchTimeout: 0,
+        nextGlitchAvailable: 0,
+      }));
+      this.glitchHistory = []; // Track timestamps of started glitches
+      this.lastCheck = Date.now();
+    }
 
-  let displayedChars = text
-    .split("")
-    .map((char) => ({ char, isGlitch: false }));
+    update() {
+      const now = Date.now();
+      const dt = now - this.lastCheck;
+      this.lastCheck = now;
+
+      // Clean up glitch history older than 5 seconds
+      this.glitchHistory = this.glitchHistory.filter((t) => now - t < 5000);
+
+      this.chars.forEach((char) => {
+        if (char.glitchType) {
+          char.glitchTimeout -= dt;
+          if (char.glitchTimeout <= 0) {
+            if (char.glitchType === "random") {
+              char.glitchType = "?";
+              char.current = "?";
+              char.glitchTimeout = 100;
+            } else if (char.glitchType === "?") {
+              char.glitchType = "block";
+              char.current = "▮";
+              char.glitchTimeout = 100;
+            } else {
+              char.glitchType = null;
+              char.current = char.original;
+              char.nextGlitchAvailable = now + 5000;
+            }
+          }
+        } else if (
+          this.glitchHistory.length < 3 &&
+          now >= char.nextGlitchAvailable &&
+          char.original !== " "
+        ) {
+          // Lower chance to start glitching (0.1% per frame ≈ 0.06 per char/sec)
+          if (Math.random() < 0.001) {
+            char.glitchType = "random";
+            char.glitchTimeout = 200;
+            char.current =
+              glitchChars[Math.floor(Math.random() * glitchChars.length)];
+            this.glitchHistory.push(now);
+          }
+        }
+      });
+
+      return this.chars.map((c) => c.current).join("");
+    }
+  }
+</script>
+
+<script>
+  import { onMount, onDestroy } from "svelte";
+
+  export let text = "Hello, my name is";
+  export let speed = 16;
+
+  let glitcher = new GlitchString(text);
+  let displayedText = text;
   let frameId;
   let lastUpdate = 0;
+
+  $: if (text !== glitcher.originalText) {
+    glitcher = new GlitchString(text);
+  }
 
   function animate(timestamp) {
     if (timestamp - lastUpdate >= speed) {
       lastUpdate = timestamp;
-
-      // Update logic:
-      // We want to keep most text readable but chaotic.
-      // Re-generate the array occasionally or just modify in place?
-      // To satisfy "separate letters updated each", we treat them individually.
-
-      const newChars = text.split("").map((original, i) => {
-        // 5% chance to glitch each character per frame
-        if (original !== " " && Math.random() < 0.05) {
-          return {
-            char: glitchChars[Math.floor(Math.random() * glitchChars.length)],
-            isGlitch: true,
-          };
-        }
-        return { char: original, isGlitch: false };
-      });
-
-      displayedChars = newChars;
+      displayedText = glitcher.update();
     }
 
     frameId = requestAnimationFrame(animate);

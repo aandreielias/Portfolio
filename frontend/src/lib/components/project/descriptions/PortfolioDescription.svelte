@@ -175,31 +175,6 @@
     margin-bottom: 1.5rem;
   }
 
-  .figure {
-    margin: 2rem 0;
-    border-radius: var(--radius);
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  }
-
-  .figure img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-
-  .figcap {
-    padding: 1rem;
-    font-size: 0.9rem;
-    color: var(--color-text-muted);
-    background: rgba(0, 0, 0, 0.2);
-    border-top: 1px solid var(--glass-border);
-    text-align: center;
-    font-style: italic;
-  }
-
   .footer-meta {
     margin-top: 3rem;
     padding-top: 1.5rem;
@@ -215,16 +190,6 @@
     color: var(--color-text);
     font-weight: 600;
     margin-top: 0; /* Updated from 1.5rem to 0 for card alignment */
-  }
-
-  .clickable-image {
-    cursor: pointer;
-    transition: transform 0.2s;
-    border-radius: var(--radius) var(--radius) 0 0;
-  }
-
-  .clickable-image:hover {
-    transform: scale(1.02);
   }
 
   /* Table Styles */

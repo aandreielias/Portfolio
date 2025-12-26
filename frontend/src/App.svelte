@@ -100,7 +100,7 @@
   />
 </div>
 
-<Header {name} />
+<Header />
 
 <section class="hero">
   <div class="hero-content">

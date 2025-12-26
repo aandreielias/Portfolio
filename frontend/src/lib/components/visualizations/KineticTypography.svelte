@@ -14,7 +14,7 @@
   <div class="grid">
     <!-- COLUMN 1: HELLO (Vertical) -->
     <div class="cell col-vertical col-1">
-      <svg viewBox="15 0 70 100" preserveAspectRatio="none">
+      <svg viewBox="15 0 75 100" preserveAspectRatio="none">
         {#each helloText.split("") as char, i}
           <text
             x={(i * 100) / helloText.length + 50 / helloText.length}
@@ -32,7 +32,7 @@
 
     <!-- COLUMN 2: MY NAME IS (Vertical) -->
     <div class="cell col-vertical col-2">
-      <svg viewBox="15 0 70 100" preserveAspectRatio="none">
+      <svg viewBox="15 0 75 100" preserveAspectRatio="none">
         {#each introText.split("") as char, i}
           <text
             x={(i * 100) / introText.length + 50 / introText.length}
@@ -50,7 +50,7 @@
 
     <!-- COLUMN 3, ROW 1: NAME (Horizontal) -->
     <div class="cell row-horizontal row-1">
-      <svg viewBox="0 15 100 70" preserveAspectRatio="none">
+      <svg viewBox="0 15 100 75" preserveAspectRatio="none">
         {#each firstName.split("") as char, i}
           <text
             x={(i * 100) / firstName.length + 50 / firstName.length}
@@ -67,7 +67,7 @@
 
     <!-- COLUMN 3, ROW 2: SURNAME (Horizontal) -->
     <div class="cell row-horizontal row-2">
-      <svg viewBox="0 15 100 70" preserveAspectRatio="none">
+      <svg viewBox="0 15 100 75" preserveAspectRatio="none">
         {#each lastName.split("") as char, i}
           <text
             x={(i * 100) / lastName.length + 50 / lastName.length}
