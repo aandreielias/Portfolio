@@ -1,14 +1,14 @@
 <svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <!-- Light mode gradient (Deep Dark Red -> Taupe) -->
+    <!-- Light mode gradient (Black -> Dark Grey) -->
     <linearGradient id="logoGradientLight" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#8b0000;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#a1887f;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#000000;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4a4a4a;stop-opacity:1" />
     </linearGradient>
-    <!-- Dark mode gradient (Bright Soft Red -> Light Warm Grey) -->
+    <!-- Dark mode gradient (White -> Light Grey) -->
     <linearGradient id="logoGradientDark" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#f87171;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#d6d3d1;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#cccccc;stop-opacity:1" />
     </linearGradient>
   </defs>
   <style>

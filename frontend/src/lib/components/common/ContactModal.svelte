@@ -56,6 +56,29 @@
         },
     ];
 
+    const skills = {
+        Languages: [
+            "Java",
+            "JavaScript",
+            "TypeScript",
+            "Python",
+            "HTML",
+            "CSS",
+            "SQL",
+        ],
+        Frameworks: ["Svelte", "Spring Boot", "Three.js", "Tkinter"],
+        "Tools & DevOps": ["Git", "Docker", "GitLab CI", "Cypress", "Vite"],
+        Concepts: ["System Design", "REST APIs", "UI/UX Design"],
+    };
+
+    const certifications = [
+        {
+            title: "Project Management Basics (pm basic)",
+            issuer: "pma (Projekt Management Austria)",
+            date: "2023", // Approximate date or just omit if unknown, but better to have field.
+        },
+    ];
+
     function close() {
         dispatch("close");
     }
@@ -64,7 +87,9 @@
 <Modal
     title={activeTab === "about" ? "About Me" : "Contact Me"}
     on:close={close}
-    height="600px"
+    height="800px"
+    width="90%"
+    maxWidth="1200px"
 >
     <div class="modal-content-grid">
         <div class="main-column">
@@ -100,24 +125,68 @@
                             </p>
                         </div>
 
-                        <div class="category-tabs">
-                            <button
-                                class="category-btn"
-                                class:active={activeCategory === "education"}
-                                on:click={() => (activeCategory = "education")}
-                            >
-                                Education
-                            </button>
-                            <button
-                                class="category-btn"
-                                class:active={activeCategory === "work"}
-                                on:click={() => (activeCategory = "work")}
-                            >
-                                Work Experience
-                            </button>
+                        <div class="section-spacer"></div>
+
+                        <Timeline items={timelineItems} mode="combined" />
+
+                        <div class="section-spacer"></div>
+
+                        <h3 class="section-title">Skills</h3>
+                        <div class="skills-grid">
+                            {#each Object.entries(skills) as [category, items]}
+                                <div class="skill-category">
+                                    <h4>{category}</h4>
+                                    <div class="skill-tags">
+                                        {#each items as skill}
+                                            <span class="skill-tag"
+                                                >{skill}</span
+                                            >
+                                        {/each}
+                                    </div>
+                                </div>
+                            {/each}
                         </div>
 
-                        <Timeline items={timelineItems} mode={activeCategory} />
+                        <div class="section-spacer"></div>
+
+                        <h3 class="section-title">Certifications</h3>
+                        <div class="certifications-list">
+                            {#each certifications as cert}
+                                <div class="cert-card">
+                                    <div class="cert-icon">
+                                        <!-- Simple Award Icon -->
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="24"
+                                            height="24"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            ><circle cx="12" cy="8" r="7"
+                                            ></circle><polyline
+                                                points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"
+                                            ></polyline></svg
+                                        >
+                                    </div>
+                                    <div class="cert-content">
+                                        <div class="cert-title">
+                                            {cert.title}
+                                        </div>
+                                        <div class="cert-issuer">
+                                            {cert.issuer}
+                                        </div>
+                                        {#if cert.date}
+                                            <div class="cert-date">
+                                                {cert.date}
+                                            </div>
+                                        {/if}
+                                    </div>
+                                </div>
+                            {/each}
+                        </div>
                     </div>
                 {:else}
                     <div class="contact-info">
@@ -275,43 +344,6 @@
         background: var(--color-text-muted);
     }
 
-    .category-tabs {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 1rem;
-        margin-bottom: 2rem;
-        margin-top: 1rem;
-        background: var(--glass-panel-bg);
-        padding: 0.5rem;
-        border-radius: 50px;
-        border: 1px solid var(--glass-border);
-        width: fit-content;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .category-btn {
-        background: transparent;
-        color: var(--color-text-muted);
-        padding: 0.5rem 1.5rem;
-        border-radius: 25px;
-        font-size: 0.9rem;
-        border: none;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .category-btn:hover {
-        color: var(--color-text);
-    }
-
-    .category-btn.active {
-        background: var(--color-primary);
-        color: white;
-        font-weight: 600;
-    }
-
     .about-container {
         display: flex;
         flex-direction: column;
@@ -373,6 +405,130 @@
 
         .content-area {
             overflow: visible;
+        }
+    }
+
+    /* Skills Grid Styles */
+    .skills-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .skill-category h4 {
+        font-size: 0.95rem;
+        color: var(--color-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+    }
+
+    .skill-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .skill-tag {
+        background: rgba(var(--color-primary-rgb), 0.1);
+        color: var(--color-primary);
+        padding: 0.4rem 1rem;
+        border-radius: 999px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border: 1px solid rgba(var(--color-primary-rgb), 0.2);
+        transition: all 0.2s;
+        cursor: default;
+    }
+
+    .skill-tag:hover {
+        background: rgba(var(--color-primary-rgb), 0.15);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.1);
+    }
+
+    /* Certifications List Styles */
+    .certifications-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .cert-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: var(--glass-panel-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius);
+        padding: 1rem;
+        transition: all 0.2s;
+    }
+
+    .cert-card:hover {
+        border-color: var(--color-primary);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .cert-icon {
+        color: var(--color-primary);
+        background: rgba(var(--color-primary-rgb), 0.1);
+        padding: 0.75rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .cert-content {
+        flex: 1;
+    }
+
+    .cert-title {
+        font-weight: 600;
+        color: var(--color-text);
+        font-size: 1rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .cert-issuer {
+        color: var(--color-text-muted);
+        font-size: 0.9rem;
+    }
+
+    .cert-date {
+        color: var(--color-text-muted);
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+        opacity: 0.8;
+    }
+    .section-spacer {
+        height: 2rem;
+        margin: 1.5rem 0;
+        border-bottom: 1px solid var(--glass-border);
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        color: var(--color-primary);
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .skills-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 600px) {
+        .skills-grid {
+            grid-template-columns: 1fr;
         }
     }
 </style>

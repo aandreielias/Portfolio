@@ -4,7 +4,10 @@
 
 <footer>
     <div class="container">
-        <p>&copy; {year} Built with Svelte & Spring Boot.</p>
+        <p>&copy; {year} Built with Svelte 5</p>
+        <p></p>
+        <p>Andrei Elias</p>
+        <p>aandreielias@gmail.com</p>
     </div>
 </footer>
 

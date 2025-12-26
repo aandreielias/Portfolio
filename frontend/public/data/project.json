@@ -2,7 +2,7 @@
     {
         "id": "ERoots",
         "title": "ERoots",
-        "description": "Work in Progress",
+        "description": "<p>A full-stack web application designed to empower a women's self-help group in Kenya. Built to streamline local produce sales and reduce food waste, this platform features a robust product catalogue, reservation system, and admin dashboard.</p><h4>Technical Highlights</h4><ul><li><strong>Frontend:</strong> Next.js & Tailwind CSS for a modern, responsive UI.</li><li><strong>Backend:</strong> MongoDB & AWS S3 for scalable data and asset management.</li><li><strong>Quality Assurance:</strong> End-to-end testing with Cypress and automated CI/CD via GitLab.</li></ul>",
         "logo": "/uploads/projects/ERoots/logo.png",
         "cover": null,
         "pdf": "/uploads/projects/ERoots/ERoots-Diplomarbeit.pdf",
