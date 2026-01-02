@@ -14,7 +14,7 @@
 
   import Dither from "./lib/components/visualizations/Dither.svelte";
   import KineticTypography from "./lib/components/visualizations/KineticTypography.svelte";
-  import { glitchChars } from "./lib/utils/glitchCharacters.js";
+  import InversionMask from "./lib/components/visualizations/InversionMask.svelte";
 
   // Environment variables
   const name = import.meta.env.VITE_NAME || "Portfolio";
@@ -51,52 +51,21 @@
   function scrollTo(id) {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   }
-
-  // Glitch effect for AsciiText (now used for Main Name)
-  // Glitch effect manager
-  import { GlitchString } from "./lib/components/visualizations/GlitchText.svelte";
-
-  // Initialize managers
-  const nameGlitcher = new GlitchString(name);
-  const helloGlitcher = new GlitchString("HELLO");
-  const introGlitcher = new GlitchString("MY NAME IS");
-
-  let glitchedName = name;
-  let glitchedHello = "HELLO";
-  let glitchedIntro = "MY NAME IS";
-  let frameId;
-
-  function updateGlitches() {
-    glitchedName = nameGlitcher.update();
-    glitchedHello = helloGlitcher.update();
-    glitchedIntro = introGlitcher.update();
-
-    frameId = requestAnimationFrame(updateGlitches);
-  }
-
-  onMount(() => {
-    updateGlitches();
-  });
-
-  onDestroy(() => {
-    if (frameId) cancelAnimationFrame(frameId);
-  });
 </script>
 
 <svelte:window bind:scrollY />
 
 <div class="hero-bg-container">
   <Dither
-    waveSpeed={0.01}
-    waveFrequency={2.7}
-    waveAmplitude={0.43}
-    waveColor={[0.1, 0.1, 0.1]}
-    backgroundColor={[1.0, 1.0, 1.0]}
-    colorIntensity={10.5}
+    waveSpeed={0.02}
+    waveFrequency={4}
+    waveAmplitude={0.3}
+    waveColor={[0.5, 0.6, 0.7]}
+    colorIntensity={7}
     pixelSize={2}
     disableAnimation={false}
     enableMouseInteraction={true}
-    mouseRadius={0.1}
+    mouseRadius={0.2}
   />
 </div>
 
@@ -105,11 +74,8 @@
 <section class="hero">
   <div class="hero-content">
     <div class="kinetic-wrapper">
-      <KineticTypography
-        name={glitchedName || name}
-        helloText={glitchedHello}
-        introText={glitchedIntro}
-      />
+      <KineticTypography {name} helloText="HELLO" introText="MY NAME IS" />
+      <InversionMask />
     </div>
 
     <div class="hero-footer">
