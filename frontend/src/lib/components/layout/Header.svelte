@@ -1,6 +1,8 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, createEventDispatcher } from "svelte";
   import { fade, fly } from "svelte/transition";
+
+  const dispatch = createEventDispatcher();
 
   // Smooth scroll to the specified element ID
   function scrollTo(id) {
@@ -19,6 +21,9 @@
     <nav>
       <button class="nav-link" on:click={() => scrollTo("projects")}
         >Projects</button
+      >
+      <button class="nav-link" on:click={() => dispatch("openContact")}
+        >Contact Me</button
       >
     </nav>
   </div>

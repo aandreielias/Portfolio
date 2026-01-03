@@ -7,10 +7,8 @@
 
 <div class="project-details">
   <div class="meta-header">
-    <div class="badge">Personal Project • 2025</div>
-    <div class="stack">
-      Stack: Svelte 5 • Vite • Static JSON • CSS Variables
-    </div>
+    <div class="badge">Personal Project • Work in Progress</div>
+    <div class="stack">Stack: Svelte 5</div>
   </div>
 
   <div class="intro">
@@ -27,35 +25,6 @@
       The project follows a "static-first" approach. Data is decoupled from the
       interface, allowing for easy updates and fast content delivery.
     </p>
-
-    <div class="table-container">
-      <table class="tech-table">
-        <thead>
-          <tr>
-            <th>Component</th>
-            <th>Technology</th>
-            <th>Purpose</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="primary-col">Frontend</td>
-            <td>Svelte 5 + Vite</td>
-            <td>Application logic and reactive UI state</td>
-          </tr>
-          <tr>
-            <td class="primary-col">Data Layer</td>
-            <td>Static JSON</td>
-            <td>Lightweight content management</td>
-          </tr>
-          <tr>
-            <td class="primary-col">Styling</td>
-            <td>Custom CSS</td>
-            <td>Glassmorphism and responsive layout</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
   </div>
 
   <div class="section">
@@ -64,33 +33,10 @@
       The aesthetic combines modern minimalism with retro-digital inspirations,
       featuring custom animations and interactive elements.
     </p>
-    <div class="features-grid">
-      <div class="feature-card">
-        <h4>Dynamic Typography</h4>
-        <p>
-          Headlines and key text elements feature kinetic motion and glitch
-          effects, bringing static content to life.
-        </p>
-      </div>
-      <div class="feature-card">
-        <h4>Atmospheric Effects</h4>
-        <p>
-          A custom dithered background shader provides texture and depth,
-          reacting dynamically to user interaction.
-        </p>
-      </div>
-      <div class="feature-card">
-        <h4>Glassmorphism</h4>
-        <p>
-          Translucent layers and blurred backdrops create a sense of hierarchy
-          and physical depth within the interface.
-        </p>
-      </div>
-    </div>
   </div>
 
   <div class="section">
-    <h3>Development Philosophy</h3>
+    <h3>Development</h3>
     <p>
       The codebase emphasizes clarity and maintainability. By using modern
       browser standards and a clear component structure, the project remains

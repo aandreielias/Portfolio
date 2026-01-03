@@ -142,6 +142,13 @@
     color: white;
   }
 
+  .inversionMask {
+    backdrop-filter: invert(1) brightness(0.7) sepia(1) hue-rotate(195deg)
+      saturate(500%) !important;
+    -webkit-backdrop-filter: invert(1) brightness(0.7) sepia(1)
+      hue-rotate(190deg) saturate(500%) !important;
+  }
+
   .grid {
     display: grid;
     grid-template-columns: 15% 15% 1fr;
