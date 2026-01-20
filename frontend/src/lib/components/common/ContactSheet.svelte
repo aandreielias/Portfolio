@@ -1,6 +1,9 @@
 <script>
   import { slide } from "svelte/transition";
+  import { createEventDispatcher } from "svelte";
   import Timeline from "./Timeline.svelte";
+
+  const dispatch = createEventDispatcher();
 
   // Environment variables for personalization
   const name = import.meta.env.VITE_NAME;
@@ -17,6 +20,7 @@
       description: "Software Engineering and System Design",
       type: "education",
       displayDate: "2025 - Present",
+      skills: ["Java", "Pascal", "R"],
     },
     {
       start: 2024.6, // Aug
@@ -33,6 +37,19 @@
       description: "Biomedicine and Health Informatics",
       type: "education",
       displayDate: "2019 - 2024",
+      skills: [
+        "Java",
+        "JavaScript",
+        "SQL",
+        "Python",
+        "Springboot",
+        "Git",
+        "Docker",
+      ],
+      action: {
+        label: "View Thesis",
+        projectId: "ERoots",
+      },
     },
     {
       start: 2022.6, // Aug
@@ -98,6 +115,27 @@
         >
           Contact Me
         </button>
+        <a
+          href="{import.meta.env.BASE_URL}uploads/Lebenslauf.pdf"
+          target="_blank"
+          class="tab-btn view-cv-btn"
+        >
+          View CV
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            ><line x1="7" y1="17" x2="17" y2="7"></line><polyline
+              points="7 7 17 7 17 17"
+            ></polyline></svg
+          >
+        </a>
       </div>
 
       <div class="content-area">
@@ -140,7 +178,7 @@
 
           <div class="section-spacer"></div>
 
-          <Timeline items={timelineItems} mode="combined" />
+          <Timeline items={timelineItems} mode="combined" on:viewProject />
 
           <div class="section-spacer"></div>
 
@@ -202,11 +240,24 @@
     </div>
 
     <div class="side-column">
-      <img
-        src="{import.meta.env.BASE_URL}uploads/self.jpeg"
-        alt={name}
-        class="profile-image"
-      />
+      <div class="profile-placeholder">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="64"
+          height="64"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          ><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle
+            cx="12"
+            cy="7"
+            r="4"
+          ></circle></svg
+        >
+      </div>
       <div class="interests-section">
         <h3>Personal Interests</h3>
         <p>
@@ -340,11 +391,6 @@
     background: rgba(99, 102, 241, 0.1);
   }
 
-  .content-area {
-    /* flex: 1;  Removed as main-column handles scroll now */
-    /* overflow-y: auto; Removed */
-  }
-
   .about-container {
     display: flex;
     flex-direction: column;
@@ -375,12 +421,25 @@
     text-decoration: underline;
   }
 
-  .profile-image {
+  .profile-placeholder {
     width: 100%;
-    height: auto;
+    aspect-ratio: 3/4;
+    background: var(--glass-panel-bg);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius);
-    object-fit: cover;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .view-cv-btn {
+    margin-left: auto;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   @media (max-width: 768px) {
@@ -390,13 +449,16 @@
     }
 
     .content-grid {
-      flex-direction: column-reverse;
+      flex-direction: column;
+      overflow-y: auto;
+      overscroll-behavior: contain;
     }
 
     .side-column {
       width: 100%;
       height: auto;
       overflow-y: visible;
+      order: -1;
     }
 
     .main-column {

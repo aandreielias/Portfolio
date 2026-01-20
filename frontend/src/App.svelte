@@ -151,12 +151,12 @@
       <div class="kinetic-wrapper">
         <KineticTypography {name} helloText="HELLO" introText="MY NAME IS" />
         <InversionMask />
+        <p class="subtitle">
+          Student of Systems Engineering<br />and Systems Design
+        </p>
       </div>
 
       <div class="hero-footer">
-        <p class="subtitle">
-          Student of Systems Engineering and Systems Design
-        </p>
         <div class="actions">
           <button class="primary-btn" on:click={() => scrollTo("projects")}
             >View Work</button
@@ -174,7 +174,19 @@
   <!-- Top Sheet (Contact) -->
   <!-- "slides down from the top when scrolling up" -->
   <div class="top-sheet-wrapper">
-    <ContactSheet bind:activeTab={contactActiveTab} />
+    <ContactSheet
+      bind:activeTab={contactActiveTab}
+      on:viewProject={(e) => {
+        const projectId = e.detail;
+        projectRegistry.subscribe((projects) => {
+          const project = projects.find((p) => p.id === projectId);
+          if (project) {
+            openProject(project);
+            scrollTo("projects"); // Optional: scroll to show context
+          }
+        })();
+      }}
+    />
   </div>
 
   <!-- Hero Spacer -->
@@ -310,12 +322,14 @@
   }
 
   .kinetic-wrapper {
+    position: relative;
     aspect-ratio: 1 / 1;
     width: auto;
     height: 55vh;
     max-width: 100%;
     max-height: 90vw;
     margin: 0 auto;
+    transform: translateY(-10%); /* Move up to clear buttons */
   }
 
   .hero-footer {
@@ -328,13 +342,22 @@
   }
 
   .subtitle {
-    font-size: 1.5rem;
-    color: var(--color-text);
-    font-weight: 500;
+    position: absolute;
+    bottom: -15%; /* Position inside the lower part of the circle (which extends 25% down) */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    font-size: 1.1rem; /* Slightly smaller to fit nicely */
+    color: white;
+    font-weight: 600;
     margin: 0;
     text-align: center;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    max-width: 60%; /* Tighter width to clear the curve */
+    z-index: 2;
+    pointer-events: none;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Improve readability vs dither if exposed */
   }
 
   .actions {

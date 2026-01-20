@@ -16,9 +16,23 @@
 </script>
 
 <div class="kinetic-container">
+  <div class="outer-backdrop">
+    <div class="outer-circle"></div>
+    <svg width="0" height="0" class="mask-def">
+      <defs>
+        <mask id="mask-hole" maskContentUnits="objectBoundingBox">
+          <rect width="1" height="1" fill="white" />
+          <rect x="0.17" y="0.17" width="0.66" height="0.66" fill="black" />
+        </mask>
+      </defs>
+    </svg>
+  </div>
   <div class="grid">
     <!-- COLUMN 1: HELLO (Vertical) -->
-    <div class="cell col-vertical col-1">
+    <div
+      class="cell col-vertical col-1"
+      style="--x: 0; --w: 0.15; --y: 0; --h: 1;"
+    >
       <svg width="0" height="0" class="mask-def">
         <defs>
           <mask id="mask-hello" maskContentUnits="objectBoundingBox">
@@ -38,8 +52,33 @@
               >
             {/each}
           </mask>
+          <mask id="mask-hello-inverse" maskContentUnits="objectBoundingBox">
+            <rect width="1" height="1" fill="white" />
+            {#each helloText.split("") as char, i}
+              <text
+                x={(i * 1.0) / helloText.length + 0.5 / helloText.length}
+                y="0.5"
+                font-size={SCALE}
+                text-anchor="middle"
+                dominant-baseline="central"
+                textLength={1.0 / helloText.length}
+                lengthAdjust="spacingAndGlyphs"
+                transform="rotate(-90, 0.5, 0.5)"
+                fill="black"
+                stroke="black"
+                stroke-width={STROKE_WIDTH_LG}>{char}</text
+              >
+            {/each}
+          </mask>
         </defs>
       </svg>
+      <div
+        class="bg-layer masked-layer"
+        style="mask: url(#mask-hello-inverse); -webkit-mask: url(#mask-hello-inverse);"
+      >
+        <!-- Solid Rectangle Filling the Cell -->
+        <div class="bg-rect"></div>
+      </div>
       <div
         class="inversionMask masked-layer"
         style="mask: url(#mask-hello); -webkit-mask: url(#mask-hello);"
@@ -47,7 +86,10 @@
     </div>
 
     <!-- COLUMN 2: MY NAME IS (Vertical) -->
-    <div class="cell col-vertical col-2">
+    <div
+      class="cell col-vertical col-2"
+      style="--x: 0.15; --w: 0.15; --y: 0; --h: 1;"
+    >
       <svg width="0" height="0" class="mask-def">
         <defs>
           <mask id="mask-intro" maskContentUnits="objectBoundingBox">
@@ -67,8 +109,32 @@
               >
             {/each}
           </mask>
+          <mask id="mask-intro-inverse" maskContentUnits="objectBoundingBox">
+            <rect width="1" height="1" fill="white" />
+            {#each introText.split("") as char, i}
+              <text
+                x={(i * 1.0) / introText.length + 0.5 / introText.length}
+                y="0.5"
+                font-size={SCALE}
+                text-anchor="middle"
+                dominant-baseline="central"
+                textLength={1.0 / introText.length}
+                lengthAdjust="spacingAndGlyphs"
+                transform="rotate(-90, 0.5, 0.5)"
+                fill="black"
+                stroke="black"
+                stroke-width={STROKE_WIDTH_LG}>{char}</text
+              >
+            {/each}
+          </mask>
         </defs>
       </svg>
+      <div
+        class="bg-layer masked-layer"
+        style="mask: url(#mask-intro-inverse); -webkit-mask: url(#mask-intro-inverse);"
+      >
+        <div class="bg-rect"></div>
+      </div>
       <div
         class="inversionMask masked-layer"
         style="mask: url(#mask-intro); -webkit-mask: url(#mask-intro);"
@@ -76,7 +142,10 @@
     </div>
 
     <!-- COLUMN 3, ROW 1: NAME (Horizontal) -->
-    <div class="cell row-horizontal row-1">
+    <div
+      class="cell row-horizontal row-1"
+      style="--x: 0.3; --w: 0.7; --y: 0; --h: 0.5;"
+    >
       <svg width="0" height="0" class="mask-def">
         <defs>
           <mask id="mask-first" maskContentUnits="objectBoundingBox">
@@ -95,8 +164,31 @@
               >
             {/each}
           </mask>
+          <mask id="mask-first-inverse" maskContentUnits="objectBoundingBox">
+            <rect width="1" height="1" fill="white" />
+            {#each firstName.split("") as char, i}
+              <text
+                x={(i * 1.0) / firstName.length + 0.5 / firstName.length}
+                y="0.5"
+                font-size={SCALE}
+                text-anchor="middle"
+                dominant-baseline="central"
+                textLength={1.0 / firstName.length}
+                lengthAdjust="spacingAndGlyphs"
+                fill="black"
+                stroke="black"
+                stroke-width={STROKE_WIDTH_LG}>{char}</text
+              >
+            {/each}
+          </mask>
         </defs>
       </svg>
+      <div
+        class="bg-layer masked-layer"
+        style="mask: url(#mask-first-inverse); -webkit-mask: url(#mask-first-inverse);"
+      >
+        <div class="bg-rect"></div>
+      </div>
       <div
         class="inversionMask masked-layer"
         style="mask: url(#mask-first); -webkit-mask: url(#mask-first);"
@@ -104,7 +196,10 @@
     </div>
 
     <!-- COLUMN 3, ROW 2: SURNAME (Horizontal) -->
-    <div class="cell row-horizontal row-2">
+    <div
+      class="cell row-horizontal row-2"
+      style="--x: 0.3; --w: 0.7; --y: 0.5; --h: 0.5;"
+    >
       <svg width="0" height="0" class="mask-def">
         <defs>
           <mask id="mask-last" maskContentUnits="objectBoundingBox">
@@ -123,8 +218,31 @@
               >
             {/each}
           </mask>
+          <mask id="mask-last-inverse" maskContentUnits="objectBoundingBox">
+            <rect width="1" height="1" fill="white" />
+            {#each lastName.split("") as char, i}
+              <text
+                x={(i * 1.0) / lastName.length + 0.5 / lastName.length}
+                y="0.5"
+                font-size={SCALE}
+                text-anchor="middle"
+                dominant-baseline="central"
+                textLength={1.0 / lastName.length}
+                lengthAdjust="spacingAndGlyphs"
+                fill="black"
+                stroke="black"
+                stroke-width={STROKE_WIDTH_SM}>{char}</text
+              >
+            {/each}
+          </mask>
         </defs>
       </svg>
+      <div
+        class="bg-layer masked-layer"
+        style="mask: url(#mask-last-inverse); -webkit-mask: url(#mask-last-inverse);"
+      >
+        <div class="bg-rect"></div>
+      </div>
       <div
         class="inversionMask masked-layer"
         style="mask: url(#mask-last); -webkit-mask: url(#mask-last);"
@@ -140,6 +258,34 @@
     box-sizing: border-box;
     /* Removed mix-blend-mode: difference to allow inversionMask to handle the effect directly */
     color: white;
+    /* Ensure overflow is visible so the outer backdrop can extend */
+    overflow: visible;
+    position: relative; /* For absolute positioning of children */
+  }
+
+  .outer-backdrop {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150%;
+    height: 150%;
+    pointer-events: none;
+    z-index: 0; /* Behind Grid */
+    /* Apply mask to cut out the center (where the grid is) */
+    mask: url(#mask-hole);
+    -webkit-mask: url(#mask-hole);
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+    mask-size: 100% 100%;
+    -webkit-mask-size: 100% 100%;
+  }
+
+  .outer-circle {
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    border-radius: 50%;
   }
 
   .inversionMask {
@@ -238,13 +384,26 @@
 
     .col-vertical text {
       transform: none;
-      /* When un-rotated, we might need to adjust coordinates if they were specialized for vertical */
-      /* However, with 0..1 bounding box mask, it should just work if the aspect ratio changes? */
-      /* No, rotate(-90) logic was hardcoded in the transform loop logic above. */
-      /* The mobile view might look broken with static transform=rotate in HTML mask logic */
-      /* Ideally, we should change the transform based on media query, but SVG in defs relies on internal attributes */
-      /* Solution: Using Svelte variable for transform would be cleaner, but CSS media query can't easily change SVG attribute */
-      /* We will accept the desktop-first rotation logic for now. The previous implementation also had issues with mobile un-rotation vs SVG logic */
     }
+  }
+
+  /* Simplified Background Logic */
+  .bg-layer {
+    z-index: 0; /* Behind inversionMask */
+    top: -1px;
+    left: -1px;
+    width: calc(100% + 2px);
+    height: calc(100% + 2px);
+  }
+
+  .inversionMask {
+    z-index: 1; /* On top */
+  }
+
+  .bg-rect {
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    transform: scale(1.02); /* Slight overlap to prevent sub-pixel gaps */
   }
 </style>
