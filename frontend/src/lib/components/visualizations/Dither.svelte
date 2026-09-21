@@ -106,6 +106,14 @@
       uv -= 0.5;
       uv.x *= resolution.x / resolution.y;
       float f = pattern(uv) + 0.2;
+      
+      // Check if we're outside the circle (low pattern value = outside)
+      if (f < 0.3) {
+        // Output pure white outside the circle
+        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+        return;
+      }
+      
       if (enableMouseInteraction == 1) {
         vec2 mouseNDC = (mousePos / resolution - 0.5);
         mouseNDC.x *= resolution.x / resolution.y;
@@ -151,8 +159,17 @@
       vec2 normalizedPixelSize = pixelSize / resolution;
       vec2 uvPixel = normalizedPixelSize * floor(uv / normalizedPixelSize);
       vec4 color = texture2D(inputBuffer, uvPixel);
-      color.rgb = dither(uv, color.rgb);
-      outputColor = color;
+
+      // Check if this pixel is part of the background (white/near-white)
+      float brightness = dot(color.rgb, vec3(0.299, 0.587, 0.114));
+      if (brightness > 0.9) {
+        // This is the background area - output white without dithering
+        outputColor = vec4(1.0, 1.0, 1.0, 1.0);
+      } else {
+        // This is inside the circle - apply dither
+        color.rgb = dither(uv, color.rgb);
+        outputColor = color;
+      }
     }
   `;
 
@@ -223,12 +240,12 @@
     composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
 
-    const retroEffect = new RetroEffectImpl();
-    retroEffect.uniforms.get("colorNum").value = colorIntensity;
-    retroEffect.uniforms.get("pixelSize").value = pixelSize;
+    // const retroEffect = new RetroEffectImpl();
+    // retroEffect.uniforms.get("colorNum").value = colorIntensity;
+    // retroEffect.uniforms.get("pixelSize").value = pixelSize;
 
-    const effectPass = new EffectPass(camera, retroEffect);
-    composer.addPass(effectPass);
+    // const effectPass = new EffectPass(camera, retroEffect);
+    // composer.addPass(effectPass);
 
     startTime = performance.now();
 

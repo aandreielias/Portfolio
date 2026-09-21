@@ -12,9 +12,7 @@
   import Header from "./lib/components/layout/Header.svelte";
   import Footer from "./lib/components/layout/Footer.svelte";
 
-  import Dither from "./lib/components/visualizations/Dither.svelte";
-  import KineticTypography from "./lib/components/visualizations/KineticTypography.svelte";
-  import InversionMask from "./lib/components/visualizations/InversionMask.svelte";
+
 
   // Environment variables
   const name = import.meta.env.VITE_NAME || "Portfolio";
@@ -130,44 +128,31 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="landing-fixed" on:click={handleOutsideClick}>
-  <div class="hero-bg-container">
-    <Dither
-      waveSpeed={0.02}
-      waveFrequency={4}
-      waveAmplitude={0.3}
-      waveColor={[0.5, 0.5, 0.5]}
-      colorIntensity={7}
-      pixelSize={2}
-      disableAnimation={false}
-      enableMouseInteraction={true}
-      mouseRadius={0.2}
-    />
-  </div>
 
   <Header on:openContact={() => openContact("contact")} />
 
-  <section class="hero">
-    <div class="hero-content">
-      <div class="kinetic-wrapper">
-        <KineticTypography {name} helloText="HELLO" introText="MY NAME IS" />
-        <InversionMask />
-        <p class="subtitle">
-          Student of Systems Engineering<br />and Systems Design
-        </p>
-      </div>
+   <section class="hero">
+     <div class="hero-content">
+       <div class="portfolio-title">
+         <h1>My Portfolio</h1>
+         <p class="name">{name}</p>
+         <p class="subtitle">
+           Student of Systems Engineering<br />and Systems Design
+         </p>
+       </div>
 
-      <div class="hero-footer">
-        <div class="actions">
-          <button class="primary-btn" on:click={() => scrollTo("projects")}
-            >View Work</button
-          >
-          <button class="secondary-btn" on:click={() => openContact("about")}
-            >About Me</button
-          >
-        </div>
-      </div>
-    </div>
-  </section>
+       <div class="hero-footer">
+         <div class="actions">
+           <button class="primary-btn" on:click={() => scrollTo("projects")}
+             >View Work</button
+           >
+           <button class="secondary-btn" on:click={() => openContact("about")}
+             >About Me</button
+           >
+         </div>
+       </div>
+     </div>
+   </section>
 </div>
 
 <div class="content-scroll">
@@ -232,6 +217,7 @@
     height: 100vh;
     z-index: 1;
     pointer-events: auto;
+    background: white;
   }
 
   /* Scrollable Content Layer */
@@ -298,16 +284,7 @@
   }
 
   .hero-bg-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: -1;
-    pointer-events: auto;
-    opacity: 0.8;
-    mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+    display: none;
   }
 
   .hero-content {
@@ -321,44 +298,51 @@
     padding-top: 0;
   }
 
-  .kinetic-wrapper {
-    position: relative;
-    aspect-ratio: 1 / 1;
-    width: auto;
-    height: 55vh;
-    max-width: 100%;
-    max-height: 90vw;
-    margin: 0 auto;
-    transform: translateY(-10%); /* Move up to clear buttons */
-  }
+   .portfolio-title {
+     position: relative;
+     text-align: center;
+     margin-bottom: 3rem;
+   }
 
-  .hero-footer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2rem;
-    width: 100%;
-    z-index: 10;
-  }
+   .portfolio-title h1 {
+     font-size: 4rem;
+     font-weight: 700;
+     margin: 0 0 0.5rem 0;
+     color: var(--color-text);
+     letter-spacing: -0.02em;
+   }
 
-  .subtitle {
-    position: absolute;
-    bottom: -15%; /* Position inside the lower part of the circle (which extends 25% down) */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    font-size: 1.1rem; /* Slightly smaller to fit nicely */
-    color: white;
-    font-weight: 600;
-    margin: 0;
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    max-width: 60%; /* Tighter width to clear the curve */
-    z-index: 2;
-    pointer-events: none;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Improve readability vs dither if exposed */
-  }
+    .portfolio-title .name {
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin: 0 0 0.67rem 0;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+   .subtitle {
+     font-size: 1.1rem;
+     color: var(--color-text-muted);
+     font-weight: 500;
+     margin: 0;
+     text-align: center;
+     text-transform: uppercase;
+     letter-spacing: 0.05em;
+     z-index: 2;
+     pointer-events: none;
+   }
+
+   .hero-footer {
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     gap: 2rem;
+     width: 100%;
+     z-index: 10;
+   }
+
 
   .actions {
     display: flex;
