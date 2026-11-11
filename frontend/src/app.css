@@ -1,47 +1,88 @@
-/* Paper and ink, taken from the CV. */
+/* Tokens taken from the club management software (club-client settings.ts). */
 :root {
-  --paper: #fdfcfa;
-  --ink: #141414;
-  --muted: #6b6b6b;
-  --rule: #d9d6d0;
-  --link: #2a5a9e;
-  --serif: "Tinos", "Liberation Serif", "Times New Roman", serif;
-  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --bg: #fcfcfd;
+  --surface: #f5f5f7;
+  --elevated: #ffffff;
+  --text: #1b1c21;
+  --muted: #6b6e78;
+  --faint: #a3a5ad;
+  --border: rgba(24, 26, 36, 0.08);
+  --border-strong: rgba(24, 26, 36, 0.15);
+  --hover: rgba(24, 26, 36, 0.045);
+  --accent: #5e6ad2;
+  --accent-hover: #5762c1;
+  --accent-soft: color-mix(in srgb, var(--accent) 18%, transparent);
+
+  --shadow-raised: 0 1px 2px rgba(24, 26, 36, 0.06), 0 0 0 1px rgba(24, 26, 36, 0.06);
+  --shadow-window: 0 0 0 1px rgba(24, 26, 36, 0.06), 0 8px 24px -6px rgba(24, 26, 36, 0.14), 0 24px 64px -12px rgba(24, 26, 36, 0.18);
+
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 40px;
+
+  --sans: "Inter", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, monospace;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   color-scheme: light;
 }
 
-* { box-sizing: border-box; }
-
-html, body { margin: 0; }
+*, *::before, *::after { box-sizing: border-box; }
 
 /* Keeps the page from shifting when a window locks scrolling. */
 html { scrollbar-gutter: stable; }
 
+html, body { margin: 0; }
+
 body {
-  background: var(--paper);
-  color: var(--ink);
-  font: 400 1.0625rem/1.5 var(--serif);
+  background: var(--bg);
+  color: var(--text);
+  font: 400 15px/1.6 var(--sans);
+  font-feature-settings: "cv01", "ss03";
+  letter-spacing: -0.006em;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
+* { scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; }
+
 h1, h2, h3, p { margin: 0; }
+h2, h3 { font-weight: 600; letter-spacing: -0.015em; line-height: 1.3; }
 
-a { color: var(--link); text-underline-offset: 0.15em; }
+a { color: inherit; text-decoration-color: var(--border-strong); text-underline-offset: 3px; }
+a:hover { text-decoration-color: currentColor; }
 
-button {
-  font: inherit;
-  color: inherit;
-  background: none;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
+button { font: inherit; letter-spacing: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+
+/* Club-style button: one control height, one radius. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  height: 30px;
+  padding: 0 var(--s3);
+  font-size: 13.5px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  background: var(--elevated);
+  border-radius: var(--r-sm);
+  box-shadow: var(--shadow-raised);
+  transition: background-color 120ms, box-shadow 120ms;
 }
+.btn:hover { background: var(--surface); }
+.btn.primary { background: var(--accent); color: #fff; box-shadow: none; }
+.btn.primary:hover { background: var(--accent-hover); }
 
-:focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }
+:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft), 0 0 0 1px var(--accent); border-radius: var(--r-sm); }
 
-::selection { background: var(--ink); color: var(--paper); }
+::selection { background: var(--accent-soft); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

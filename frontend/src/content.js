@@ -104,7 +104,7 @@ export const projects = [
     images: [{ src: "uploads/projects/Portfolio/landing.png", de: "Startseite", en: "Landing page" }],
     de: {
       title: "Portfolio-Website",
-      summary: "Persönliche Website mit Lebenslauf und Projekten, gestaltet nach dem Layout des Lebenslaufs",
+      summary: "Persönliche Website mit Lebenslauf und Projekten, im Design der Vereinsmanagement-Software",
       body: [
         "Statische Single-Page-Anwendung mit Svelte 5 und Vite, die über GitHub Actions auf GitHub Pages veröffentlicht wird.",
         "Alle Inhalte liegen auf Deutsch und Englisch in einer Datei. Projekte öffnen sich als verschiebbare, skalierbare Fenster, Abbildungen in einer Zoom-Ansicht.",
@@ -113,7 +113,7 @@ export const projects = [
     },
     en: {
       title: "Portfolio website",
-      summary: "Personal website with CV and projects, designed after the layout of the CV",
+      summary: "Personal website with CV and projects, in the design of the club management software",
       body: [
         "Static single-page application with Svelte 5 and Vite, published to GitHub Pages through GitHub Actions.",
         "All content is kept in German and English in one file. Projects open as movable, resizable windows, images in a zoom view.",

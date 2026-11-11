@@ -64,8 +64,12 @@
     <h2>{title}</h2>
     <div class="actions">
       {@render actions?.()}
-      <button class="max" onclick={() => (maximized = !maximized)}>{maximized ? labels.restore : labels.maximize}</button>
-      <button onclick={onclose} aria-label={labels.close}>✕</button>
+      <button class="icon max" onclick={() => (maximized = !maximized)} aria-label={maximized ? labels.restore : labels.maximize} title={maximized ? labels.restore : labels.maximize}>
+        <svg viewBox="0 0 16 16" aria-hidden="true">{#if maximized}<path d="M5.5 3.5h7v7M3.5 5.5h7v7h-7z" />{:else}<rect x="3.5" y="3.5" width="9" height="9" rx="1.5" />{/if}</svg>
+      </button>
+      <button class="icon" onclick={onclose} aria-label={labels.close} title={labels.close}>
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" /></svg>
+      </button>
     </div>
   </header>
   <div class="body">{@render children()}</div>
@@ -77,51 +81,55 @@
 </div>
 
 <style>
-  .backdrop { position: fixed; inset: 0; z-index: 40; background: rgb(20 20 20 / 0.28); }
+  .backdrop { position: fixed; inset: 0; z-index: 40; background: rgba(12, 13, 18, 0.28); }
 
   .window {
     position: fixed;
     z-index: 41;
     display: flex;
     flex-direction: column;
-    background: var(--paper);
-    box-shadow: 0 2px 4px rgb(0 0 0 / 0.08), 0 30px 80px -20px rgb(0 0 0 / 0.45);
+    background: var(--elevated);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-window);
   }
-  .window.maximized { inset: 0 !important; width: auto !important; height: auto !important; }
+  .window.maximized { inset: 0 !important; width: auto !important; height: auto !important; border-radius: 0; }
 
   header {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
-    gap: 1rem;
-    padding: 1rem 1.5rem 0.8rem;
-    border-bottom: 1px solid var(--ink);
+    gap: var(--s4);
+    padding: var(--s3) var(--s3) var(--s3) var(--s5);
+    border-bottom: 1px solid var(--border);
     cursor: grab;
     user-select: none;
     touch-action: none;
   }
   header:active { cursor: grabbing; }
-  h2 { font-size: 1.25rem; font-weight: 700; }
-  .actions { display: flex; align-items: baseline; gap: 1.1rem; font-size: 0.875rem; flex-shrink: 0; }
-  .actions :global(a), .actions button { color: var(--muted); }
-  .actions :global(a:hover), .actions button:hover { color: var(--ink); }
+  h2 { font-size: 16px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .actions { display: flex; align-items: center; gap: var(--s2); flex-shrink: 0; }
 
-  .body { flex: 1; overflow-y: auto; padding: 1.5rem clamp(1rem, 5vw, 3rem) 3rem; }
+  .icon { display: grid; place-items: center; width: 28px; height: 28px; color: var(--muted); border-radius: var(--r-sm); }
+  .icon:hover { background: var(--hover); color: var(--text); }
+  .icon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+  .body { flex: 1; overflow-y: auto; padding: var(--s5) var(--s6) var(--s6); }
 
   .handle { position: absolute; touch-action: none; }
-  .n, .s { left: 0.5rem; right: 0.5rem; height: 0.5rem; cursor: ns-resize; }
-  .e, .w { top: 0.5rem; bottom: 0.5rem; width: 0.5rem; cursor: ew-resize; }
-  .n { top: -0.25rem; } .s { bottom: -0.25rem; } .e { right: -0.25rem; } .w { left: -0.25rem; }
-  .ne, .nw, .se, .sw { width: 0.9rem; height: 0.9rem; }
-  .ne { top: -0.3rem; right: -0.3rem; cursor: nesw-resize; }
-  .sw { bottom: -0.3rem; left: -0.3rem; cursor: nesw-resize; }
-  .nw { top: -0.3rem; left: -0.3rem; cursor: nwse-resize; }
-  .se { bottom: -0.3rem; right: -0.3rem; cursor: nwse-resize; }
+  .n, .s { left: 8px; right: 8px; height: 8px; cursor: ns-resize; }
+  .e, .w { top: 8px; bottom: 8px; width: 8px; cursor: ew-resize; }
+  .n { top: -4px; } .s { bottom: -4px; } .e { right: -4px; } .w { left: -4px; }
+  .ne, .nw, .se, .sw { width: 14px; height: 14px; }
+  .ne { top: -5px; right: -5px; cursor: nesw-resize; }
+  .sw { bottom: -5px; left: -5px; cursor: nesw-resize; }
+  .nw { top: -5px; left: -5px; cursor: nwse-resize; }
+  .se { bottom: -5px; right: -5px; cursor: nwse-resize; }
 
   /* Phones: always full screen, nothing to drag. */
-  @media (max-width: 640px) {
-    .window { inset: 0 !important; width: auto !important; height: auto !important; }
+  @media (max-width: 720px) {
+    .window { inset: 0 !important; width: auto !important; height: auto !important; border-radius: 0; }
     .handle, .max { display: none; }
-    header { cursor: default; padding: 0.9rem 1rem 0.7rem; }
+    header { cursor: default; padding-left: var(--s4); }
+    .body { padding: var(--s4) var(--s4) var(--s5); }
   }
 </style>

@@ -9,13 +9,13 @@
 
 <Modal title={p.title} {onclose} labels={t.ui}>
   {#snippet actions()}
-    {#if project.link}<a href={project.link} target="_blank" rel="noopener">{t.ui.source}</a>{/if}
-    {#if project.pdf}<a href={base + project.pdf} target="_blank" rel="noopener">{t.ui.openPdf}</a>{/if}
+    {#if project.link}<a class="btn" href={project.link} target="_blank" rel="noopener">{t.ui.source}</a>{/if}
+    {#if project.pdf}<a class="btn" href={base + project.pdf} target="_blank" rel="noopener">{t.ui.openPdf}</a>{/if}
   {/snippet}
 
   <p class="year">{project.year}</p>
   {#each p.body as para}<p class="para">{para}</p>{/each}
-  <p class="tech">{t.ui.technologies}: {project.tech}</p>
+  <p class="tech"><span>{t.ui.technologies}</span> {project.tech}</p>
 
   {#if project.code}<pre><code>{project.code}</code></pre>{/if}
 
@@ -30,20 +30,22 @@
 </Modal>
 
 <style>
-  .year { font-size: 0.875rem; color: var(--muted); margin-bottom: 1rem; }
-  .para { max-width: 40rem; }
-  .para + .para { margin-top: 0.75rem; }
-  .tech { font-weight: 700; margin-top: 1rem; }
+  .year { font-size: 13.5px; color: var(--muted); margin-bottom: var(--s3); font-variant-numeric: tabular-nums; }
+  .para { max-width: 68ch; color: #3d3f47; }
+  .para + .para { margin-top: var(--s3); }
+  .tech { margin-top: var(--s4); font-size: 13.5px; color: var(--muted); }
+  .tech span { font-weight: 600; color: var(--text); }
   pre {
-    margin: 1.5rem 0 0;
-    padding: 1rem 1.25rem;
+    margin: var(--s5) 0 0;
+    padding: var(--s4);
     overflow-x: auto;
-    font: 0.8125rem/1.6 var(--mono);
-    background: #f4f2ee;
-    border-left: 2px solid var(--ink);
+    font: 13px/1.6 var(--mono);
+    background: var(--surface);
+    border-radius: var(--r-md);
+    box-shadow: inset 0 0 0 1px var(--border);
   }
-  figure { margin: 2rem 0 0; }
-  figure button { display: block; width: 100%; cursor: zoom-in; }
-  figure img { display: block; width: 100%; height: auto; border: 1px solid var(--rule); }
-  figcaption { font-size: 0.8125rem; color: var(--muted); margin-top: 0.5rem; }
+  figure { margin: var(--s5) 0 0; }
+  figure button { display: block; width: 100%; cursor: zoom-in; border-radius: var(--r-md); }
+  figure img { display: block; width: 100%; height: auto; border-radius: var(--r-md); box-shadow: var(--shadow-raised); }
+  figcaption { font-size: 13px; color: var(--muted); margin-top: var(--s2); }
 </style>
