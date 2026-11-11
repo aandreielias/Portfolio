@@ -1,596 +1,127 @@
 <script>
-  import { createEventDispatcher, onMount, onDestroy } from "svelte";
-  import { fade, scale, slide } from "svelte/transition";
-  import { quintOut, cubicOut } from "svelte/easing";
+  import { fade, fly } from "svelte/transition";
+  import { cubicOut } from "svelte/easing";
 
-  export let title = "";
-  export let maxWidth = "800px";
-  export let width = "90%";
-  export let height = "auto";
-  export let maxHeight = "90vh";
-  export let scrollableBody = true;
-  export let visibleColumns = 1;
-  export let maxColumns = 1;
-  export let minPanelWidth = 0;
+  let { title, onclose, labels, actions, children } = $props();
 
-  const dispatch = createEventDispatcher();
+  const MIN_W = 300;
+  const MIN_H = 200;
+  const handles = ["n", "s", "e", "w", "ne", "nw", "se", "sw"];
 
-  let modalContent;
-  let isDragging = false;
-  let isCollapsed = false;
-  let isMaximized = false;
-  let startX;
-  let startY;
-  let translateX = 0;
-  let translateY = 0;
-  let initialTranslateX = 0;
-  let initialTranslateY = 0;
+  const w0 = Math.min(860, innerWidth - 32);
+  const h0 = Math.min(innerHeight * 0.85, 780);
+  let w = $state(w0);
+  let h = $state(h0);
+  let x = $state((innerWidth - w0) / 2);
+  let y = $state((innerHeight - h0) / 2);
+  let maximized = $state(false);
+  let drag = null;
 
-  // State for resizing logic
-  let resizableWidth = null;
-  let resizableHeight = null;
-  let isResizing = false;
-  let resizeDirection = "";
-  let startResizeX, startResizeY;
-  let startResizeWidth, startResizeHeight;
-  let startResizeTX, startResizeTY;
-  let activeResizeHandle = null;
-
-  function close() {
-    dispatch("close");
-  }
-
-  function toggleCollapse() {
-    isCollapsed = !isCollapsed;
-  }
-
-  function toggleMaximize() {
-    if (!isMaximized) {
-      // Calculate potential columns based on window width
-      const windowWidth = window.innerWidth;
-      let potentialColumns = 1;
-
-      if (minPanelWidth > 0) {
-        potentialColumns = Math.floor(windowWidth / minPanelWidth);
-      } else if (modalContent) {
-        const rect = modalContent.getBoundingClientRect();
-        const currentWidth = rect.width;
-        const ratio = windowWidth / currentWidth;
-        potentialColumns = Math.floor(ratio);
-      }
-
-      // Ensure column count is within valid bounds
-      visibleColumns = Math.max(1, Math.min(potentialColumns, maxColumns));
-    } else {
-      // Reset to single column when not maximized
-      visibleColumns = 1;
-    }
-
-    isMaximized = !isMaximized;
-    if (isMaximized) {
-      isCollapsed = false;
-    }
-  }
-
-  function handleKeydown(event) {
-    if (event.key === "Escape") {
-      close();
-    }
-  }
-
-  function handlePointerDown(event) {
-    if (event.target.closest("button") || event.target.closest("a")) return;
-    if (isMaximized) return;
-
-    // Initialize drag state
-    isDragging = true;
-    startX = event.clientX;
-    startY = event.clientY;
-    initialTranslateX = translateX;
-    initialTranslateY = translateY;
-
-    event.currentTarget.setPointerCapture(event.pointerId);
-  }
-
-  function handlePointerMove(event) {
-    if (!isDragging) return;
-
-    const dx = event.clientX - startX;
-    const dy = event.clientY - startY;
-
-    let newX = initialTranslateX + dx;
-    let newY = initialTranslateY + dy;
-
-    // Constrain modal within viewport bounds
-    if (modalContent) {
-      const rect = modalContent.getBoundingClientRect();
-      const xLimit = (window.innerWidth - rect.width) / 2;
-      const yLimit = (window.innerHeight - rect.height) / 2;
-
-      const minX = Math.min(-xLimit, xLimit);
-      const maxX = Math.max(-xLimit, xLimit);
-      const minY = Math.min(-yLimit, yLimit);
-      const maxY = Math.max(-yLimit, yLimit);
-
-      newX = Math.max(minX, Math.min(maxX, newX));
-      newY = Math.max(minY, Math.min(maxY, newY));
-    }
-
-    translateX = newX;
-    translateY = newY;
-  }
-
-  function handlePointerUp(event) {
-    isDragging = false;
-    event.currentTarget.releasePointerCapture(event.pointerId);
-  }
-
-  function handleResizeStart(event, direction) {
-    event.preventDefault();
-    event.stopPropagation();
-
-    if (isMaximized) return;
-
-    activeResizeHandle = event.currentTarget;
-    activeResizeHandle.setPointerCapture(event.pointerId);
-
-    // Initialize resize state
-    isResizing = true;
-    resizeDirection = direction;
-    startResizeX = event.clientX;
-    startResizeY = event.clientY;
-
-    const rect = modalContent.getBoundingClientRect();
-    startResizeWidth = rect.width;
-    startResizeHeight = rect.height;
-    startResizeTX = translateX;
-    startResizeTY = translateY;
-
-    if (!resizableWidth) resizableWidth = `${rect.width}px`;
-    if (!resizableHeight) resizableHeight = `${rect.height}px`;
-
-    window.addEventListener("pointermove", handleResizeMove);
-    window.addEventListener("pointerup", handleResizeEnd);
-  }
-
-  function handleResizeMove(event) {
-    if (!isResizing) return;
-
-    const dx = event.clientX - startResizeX;
-    const dy = event.clientY - startResizeY;
-
-    let newW = startResizeWidth;
-    let newH = startResizeHeight;
-    let newTX = startResizeTX;
-    let newTY = startResizeTY;
-
-    // Adjust dimensions based on direction
-    if (resizeDirection.includes("e")) {
-      newW = startResizeWidth + dx;
-    } else if (resizeDirection.includes("w")) {
-      newW = startResizeWidth - dx;
-    }
-
-    if (resizeDirection.includes("s")) {
-      newH = startResizeHeight + dy;
-    } else if (resizeDirection.includes("n")) {
-      newH = startResizeHeight - dy;
-    }
-
-    // Enforce minimum size limits
-    if (newW < 300) newW = 300;
-    if (newH < 200) newH = 200;
-
-    const deltaW = newW - startResizeWidth;
-    const deltaH = newH - startResizeHeight;
-
-    // Adjust position to keep center or opposite edge fixed
-    if (resizeDirection.includes("e")) {
-      newTX = startResizeTX + deltaW / 2;
-    } else if (resizeDirection.includes("w")) {
-      newTX = startResizeTX - deltaW / 2;
-    }
-
-    if (resizeDirection.includes("s")) {
-      newTY = startResizeTY + deltaH / 2;
-    } else if (resizeDirection.includes("n")) {
-      newTY = startResizeTY - deltaH / 2;
-    }
-
-    resizableWidth = `${newW}px`;
-    resizableHeight = `${newH}px`;
-    translateX = newTX;
-    translateY = newTY;
-  }
-
-  function handleResizeEnd(event) {
-    isResizing = false;
-
-    if (activeResizeHandle) {
-      activeResizeHandle.releasePointerCapture(event.pointerId);
-      activeResizeHandle = null;
-    }
-
-    window.removeEventListener("pointermove", handleResizeMove);
-    window.removeEventListener("pointerup", handleResizeEnd);
-  }
-
-  onMount(() => {
-    window.addEventListener("keydown", handleKeydown);
+  $effect(() => {
     document.body.style.overflow = "hidden";
+    return () => (document.body.style.overflow = "");
   });
 
-  onDestroy(() => {
-    window.removeEventListener("keydown", handleKeydown);
-    document.body.style.overflow = "";
-    if (typeof window !== "undefined") {
-      window.removeEventListener("pointermove", handleResizeMove);
-      window.removeEventListener("pointerup", handleResizeEnd);
+  function start(e, mode) {
+    if (maximized || e.button !== 0 || e.target.closest("button, a")) return;
+    drag = { mode, px: e.clientX, py: e.clientY, x, y, w, h };
+    e.currentTarget.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  }
+
+  function move(e) {
+    if (!drag) return;
+    const dx = e.clientX - drag.px;
+    const dy = e.clientY - drag.py;
+    const m = drag.mode;
+    if (m === "move") {
+      x = Math.min(Math.max(drag.x + dx, 0), innerWidth - w);
+      y = Math.min(Math.max(drag.y + dy, 0), innerHeight - 48);
+      return;
     }
-  });
+    if (m.includes("e")) w = Math.max(MIN_W, drag.w + dx);
+    if (m.includes("s")) h = Math.max(MIN_H, drag.h + dy);
+    if (m.includes("w")) { w = Math.max(MIN_W, drag.w - dx); x = drag.x + drag.w - w; }
+    if (m.includes("n")) { h = Math.max(MIN_H, drag.h - dy); y = drag.y + drag.h - h; }
+  }
 </script>
 
-<!-- Backdrop handles closing on click outside -->
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
+<div class="backdrop" onclick={onclose} transition:fade={{ duration: 250 }} aria-hidden="true"></div>
+
 <div
-  class="modal-backdrop"
-  on:click={close}
-  transition:fade={{ duration: 200 }}
+  class="window"
+  class:maximized
+  role="dialog"
+  aria-modal="true"
+  aria-label={title}
+  style="left:{x}px; top:{y}px; width:{w}px; height:{h}px"
+  transition:fly={{ y: 40, duration: 450, easing: cubicOut }}
+  onpointermove={move}
+  onpointerup={() => (drag = null)}
 >
-  <!-- Main Modal Container -->
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <div
-    class="modal-content glass-panel"
-    class:maximized={isMaximized}
-    class:collapsed={isCollapsed}
-    bind:this={modalContent}
-    on:click|stopPropagation
-    style="
-            --max-width: {isMaximized
-      ? '100vw'
-      : resizableWidth
-        ? '100vw'
-        : maxWidth}; 
-            --width: {isMaximized ? '100vw' : resizableWidth || width}; 
-            --height: {isMaximized
-      ? '100vh'
-      : isCollapsed
-        ? 'auto'
-        : resizableHeight || height}; 
-            --max-height: {isMaximized ? '100vh' : maxHeight}; 
-            transform: {isMaximized
-      ? 'translate(0px, 0px)'
-      : `translate(${translateX}px, ${translateY}px)`};
-        "
-    transition:scale={{
-      duration: 300,
-      start: 0.95,
-      opacity: 0,
-      easing: quintOut,
-    }}
-  >
-    <!-- Resize Handles (visible only when not maximized) -->
-    {#if !isMaximized}
-      <div
-        class="resize-handle n"
-        on:pointerdown={(e) => handleResizeStart(e, "n")}
-      ></div>
-      <div
-        class="resize-handle s"
-        on:pointerdown={(e) => handleResizeStart(e, "s")}
-      ></div>
-      <div
-        class="resize-handle e"
-        on:pointerdown={(e) => handleResizeStart(e, "e")}
-      ></div>
-      <div
-        class="resize-handle w"
-        on:pointerdown={(e) => handleResizeStart(e, "w")}
-      ></div>
-      <div
-        class="resize-handle ne"
-        on:pointerdown={(e) => handleResizeStart(e, "ne")}
-      ></div>
-      <div
-        class="resize-handle nw"
-        on:pointerdown={(e) => handleResizeStart(e, "nw")}
-      ></div>
-      <div
-        class="resize-handle se"
-        on:pointerdown={(e) => handleResizeStart(e, "se")}
-      ></div>
-      <div
-        class="resize-handle sw"
-        on:pointerdown={(e) => handleResizeStart(e, "sw")}
-      ></div>
-    {/if}
-
-    <div class="window-controls">
-      <button
-        class="maximize-btn"
-        on:click={toggleMaximize}
-        aria-label="Maximize"
-      ></button>
-      <button class="close-btn" on:click={close} aria-label="Close"></button>
+  <!-- svelte-ignore a11y_no_static_element_interactions (double-click is a shortcut; the maximize button is the accessible path) -->
+  <header onpointerdown={(e) => start(e, "move")} ondblclick={() => (maximized = !maximized)}>
+    <h2>{title}</h2>
+    <div class="actions">
+      {@render actions?.()}
+      <button class="max" onclick={() => (maximized = !maximized)}>{maximized ? labels.restore : labels.maximize}</button>
+      <button onclick={onclose} aria-label={labels.close}>✕</button>
     </div>
-
-    {#if title || $$slots.header}
-      <!-- svelte-ignore a11y-no-static-element-interactions -->
-      <div
-        class="modal-header"
-        on:pointerdown={handlePointerDown}
-        on:pointermove={handlePointerMove}
-        on:pointerup={handlePointerUp}
-        on:pointercancel={handlePointerUp}
-        style="cursor: {isMaximized ? 'default' : 'grab'};"
-      >
-        {#if title}
-          <h1>{title}</h1>
-        {/if}
-        <slot name="header" />
-      </div>
-    {/if}
-
-    <div class="body-wrapper" class:collapsed={isCollapsed}>
-      <div
-        class="modal-body"
-        class:scrollable={scrollableBody}
-        class:no-scroll={!scrollableBody}
-      >
-        <slot />
-      </div>
-    </div>
-  </div>
+  </header>
+  <div class="body">{@render children()}</div>
+  {#if !maximized}
+    {#each handles as d}
+      <span class="handle {d}" onpointerdown={(e) => start(e, d)} aria-hidden="true"></span>
+    {/each}
+  {/if}
 </div>
 
 <style>
-  .modal-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    backdrop-filter: blur(8px);
-  }
+  .backdrop { position: fixed; inset: 0; z-index: 40; background: rgb(20 20 20 / 0.28); }
 
-  .modal-content {
-    background-color: var(--color-bg);
-    width: var(--width);
-    max-width: var(--max-width);
-    height: var(--height);
-    max-height: var(--max-height);
-    border-radius: var(--radius);
-    padding: 0;
-    position: relative;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    border: 1px solid var(--glass-border);
+  .window {
+    position: fixed;
+    z-index: 41;
     display: flex;
     flex-direction: column;
-    will-change: transform;
-    overflow: hidden;
-    transition:
-      width 0.3s ease,
-      height 0.3s ease,
-      max-width 0.3s ease,
-      max-height 0.3s ease,
-      transform 0.3s ease,
-      border-radius 0.3s ease;
+    background: var(--paper);
+    box-shadow: 0 2px 4px rgb(0 0 0 / 0.08), 0 30px 80px -20px rgb(0 0 0 / 0.45);
   }
+  .window.maximized { inset: 0 !important; width: auto !important; height: auto !important; }
 
-  .modal-content.maximized {
-    border-radius: 0;
-    border: none;
-  }
-
-  .modal-content.collapsed {
-    height: auto !important;
-  }
-
-  /* Resize Handles */
-  .resize-handle {
-    position: absolute;
-    z-index: 100;
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.5rem 0.8rem;
+    border-bottom: 1px solid var(--ink);
+    cursor: grab;
+    user-select: none;
     touch-action: none;
   }
+  header:active { cursor: grabbing; }
+  h2 { font-size: 1.25rem; font-weight: 700; }
+  .actions { display: flex; align-items: baseline; gap: 1.1rem; font-size: 0.875rem; flex-shrink: 0; }
+  .actions :global(a), .actions button { color: var(--muted); }
+  .actions :global(a:hover), .actions button:hover { color: var(--ink); }
 
-  .n {
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 6px;
-    cursor: ns-resize;
-  }
-  .s {
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 6px;
-    cursor: ns-resize;
-  }
-  .e {
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 6px;
-    cursor: ew-resize;
-  }
-  .w {
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 6px;
-    cursor: ew-resize;
-  }
+  .body { flex: 1; overflow-y: auto; padding: 1.5rem clamp(1rem, 5vw, 3rem) 3rem; }
 
-  .ne {
-    top: 0;
-    right: 0;
-    width: 12px;
-    height: 12px;
-    cursor: ne-resize;
-    z-index: 101;
-  }
-  .nw {
-    top: 0;
-    left: 0;
-    width: 12px;
-    height: 12px;
-    cursor: nw-resize;
-    z-index: 101;
-  }
-  .se {
-    bottom: 0;
-    right: 0;
-    width: 12px;
-    height: 12px;
-    cursor: se-resize;
-    z-index: 101;
-  }
-  .sw {
-    bottom: 0;
-    left: 0;
-    width: 12px;
-    height: 12px;
-    cursor: sw-resize;
-    z-index: 101;
-  }
+  .handle { position: absolute; touch-action: none; }
+  .n, .s { left: 0.5rem; right: 0.5rem; height: 0.5rem; cursor: ns-resize; }
+  .e, .w { top: 0.5rem; bottom: 0.5rem; width: 0.5rem; cursor: ew-resize; }
+  .n { top: -0.25rem; } .s { bottom: -0.25rem; } .e { right: -0.25rem; } .w { left: -0.25rem; }
+  .ne, .nw, .se, .sw { width: 0.9rem; height: 0.9rem; }
+  .ne { top: -0.3rem; right: -0.3rem; cursor: nesw-resize; }
+  .sw { bottom: -0.3rem; left: -0.3rem; cursor: nesw-resize; }
+  .nw { top: -0.3rem; left: -0.3rem; cursor: nwse-resize; }
+  .se { bottom: -0.3rem; right: -0.3rem; cursor: nwse-resize; }
 
-  .window-controls {
-    position: absolute;
-    top: 1.5rem;
-    right: 1.5rem;
-    display: flex;
-    gap: 0.75rem;
-    z-index: 10;
-  }
-
-  .close-btn,
-  .maximize-btn {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    transition:
-      transform 0.2s,
-      background-color 0.2s;
-  }
-
-  .close-btn {
-    background-color: #ef4444;
-    box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
-  }
-
-  .close-btn:hover {
-    transform: scale(1.2);
-    background-color: #d64a4a;
-  }
-
-  .maximize-btn {
-    background-color: #1fa34f;
-    box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
-  }
-
-  .maximize-btn:hover {
-    transform: scale(1.2);
-    background-color: #155f30;
-  }
-
-  .modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: 3rem 3rem 1.5rem 3rem;
-    border-bottom: 1px solid var(--glass-border);
-    flex-shrink: 0;
-    user-select: none;
-    background: var(--glass-panel-bg);
-    transition: padding 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .modal-content.collapsed .modal-header {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: none;
-  }
-
-  .modal-header:active {
-    cursor: grabbing !important;
-  }
-
-  h1 {
-    margin: 0;
-    font-size: 2rem;
-    line-height: 1;
-    background: var(--gradient-heading);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .body-wrapper {
-    display: grid;
-    grid-template-rows: 1fr;
-    transition: grid-template-rows 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    flex: 1;
-    min-height: 0;
-  }
-
-  .body-wrapper.collapsed {
-    grid-template-rows: 0fr;
-  }
-
-  .modal-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    padding: 2rem 3rem 3rem 3rem;
-    overflow: hidden;
-    transition:
-      padding 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-      opacity 0.3s ease;
-    opacity: 1;
-  }
-
-  .body-wrapper.collapsed .modal-body {
-    padding-top: 0;
-    padding-bottom: 0;
-    opacity: 0;
-  }
-
-  .modal-body.scrollable {
-    overflow-y: auto;
-  }
-
-  .modal-body.scrollable::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  .modal-body.scrollable::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
-  }
-
-  .modal-body.scrollable::-webkit-scrollbar-thumb {
-    background: var(--glass-border);
-    border-radius: 4px;
-  }
-
-  .modal-body.scrollable::-webkit-scrollbar-thumb:hover {
-    background: var(--color-text-muted);
-  }
-
-  .modal-body.no-scroll {
-    overflow-y: hidden;
+  /* Phones: always full screen, nothing to drag. */
+  @media (max-width: 640px) {
+    .window { inset: 0 !important; width: auto !important; height: auto !important; }
+    .handle, .max { display: none; }
+    header { cursor: default; padding: 0.9rem 1rem 0.7rem; }
   }
 </style>

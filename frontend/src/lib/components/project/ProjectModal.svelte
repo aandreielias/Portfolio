@@ -1,136 +1,49 @@
 <script>
-    import { createEventDispatcher } from "svelte";
-    import Modal from "../common/Modal.svelte";
-    import ERootsDescription from "./descriptions/ERootsDescription.svelte";
-    import PortfolioDescription from "./descriptions/PortfolioDescription.svelte";
+  import Modal from "../common/Modal.svelte";
+  import { openImage } from "../../stores/imageViewerStore.js";
 
-    export let project;
-
-    const dispatch = createEventDispatcher();
-    const BASE_URL = import.meta.env.BASE_URL;
-
-    function close() {
-        dispatch("close");
-    }
-
-    // Helper to construct full URL
-    function getFullUrl(path) {
-        if (!path) return null;
-        if (path.startsWith("http")) return path;
-
-        // Remove leading slash from path if it exists to avoid double slash with BASE_URL
-        const cleanPath = path.startsWith("/") ? path.slice(1) : path;
-        return `${BASE_URL}${cleanPath}`;
-    }
-
-    function getPdfUrl(url, title) {
-        let fullUrl = getFullUrl(url);
-        if (title && title.toLowerCase().includes("eroots")) {
-            return `${fullUrl}#page=129`;
-        }
-        return fullUrl;
-    }
+  let { project, t, lang, onclose } = $props();
+  const base = import.meta.env.BASE_URL;
+  let p = $derived(project[lang]);
 </script>
 
-<Modal title={project.title} on:close={close}>
-    <div slot="header" class="header-actions">
-        {#if project.pdf}
-            <a
-                href={getPdfUrl(project.pdf, project.title)}
-                target="_blank"
-                class="primary-btn small-btn"
-            >
-                View PDF
-            </a>
-        {/if}
-        {#if project.logo}
-            <img
-                src={getFullUrl(project.logo)}
-                alt="{project.title} logo"
-                class="project-logo"
-            />
-        {/if}
-    </div>
+<Modal title={p.title} {onclose} labels={t.ui}>
+  {#snippet actions()}
+    {#if project.link}<a href={project.link} target="_blank" rel="noopener">{t.ui.source}</a>{/if}
+    {#if project.pdf}<a href={base + project.pdf} target="_blank" rel="noopener">{t.ui.openPdf}</a>{/if}
+  {/snippet}
 
-    {#if project.id === "ERoots"}
-        <ERootsDescription />
-    {:else if project.id === "Portfolio"}
-        <PortfolioDescription />
-    {:else}
-        <div class="description">{@html project.description}</div>
-    {/if}
+  <p class="year">{project.year}</p>
+  {#each p.body as para}<p class="para">{para}</p>{/each}
+  <p class="tech">{t.ui.technologies}: {project.tech}</p>
 
-    {#if project.pdf && project.title !== "ERoots"}
-        <div class="actions">
-            <a href={getFullUrl(project.pdf)} download class="secondary-btn">
-                Download PDF
-            </a>
-        </div>
-    {/if}
+  {#if project.code}<pre><code>{project.code}</code></pre>{/if}
+
+  {#each project.images ?? [] as img}
+    <figure>
+      <button onclick={() => openImage(base + img.src, img[lang])}>
+        <img src={base + img.src} alt={img[lang]} loading="lazy" />
+      </button>
+      <figcaption>{img[lang]}</figcaption>
+    </figure>
+  {/each}
 </Modal>
 
 <style>
-    .header-actions {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .project-logo {
-        width: 38px;
-        height: 38px;
-        object-fit: cover;
-        border-radius: var(--radius);
-        background: rgba(255, 255, 255, 0.05);
-        padding: 0;
-    }
-
-    .description {
-        margin-bottom: 2rem;
-        text-align: left;
-        font-size: 1.1rem;
-        line-height: 1.6;
-        color: var(--color-text-muted);
-    }
-
-    .actions {
-        display: flex;
-        gap: 1rem;
-    }
-
-    .primary-btn {
-        background-color: var(--color-primary);
-        color: white;
-        padding: 0.8rem 1.5rem;
-        border-radius: var(--radius);
-        font-weight: bold;
-        text-decoration: none;
-        transition: all 0.2s;
-        box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
-    }
-
-    .primary-btn.small-btn {
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
-    }
-
-    .primary-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
-    }
-
-    .secondary-btn {
-        background-color: var(--btn-secondary-bg);
-        color: var(--color-text);
-        padding: 0.8rem 1.5rem;
-        border-radius: var(--radius);
-        font-weight: bold;
-        text-decoration: none;
-        transition: all 0.2s;
-        border: 1px solid var(--btn-secondary-border);
-    }
-
-    .secondary-btn:hover {
-        background-color: var(--btn-secondary-hover-bg);
-    }
+  .year { font-size: 0.875rem; color: var(--muted); margin-bottom: 1rem; }
+  .para { max-width: 40rem; }
+  .para + .para { margin-top: 0.75rem; }
+  .tech { font-weight: 700; margin-top: 1rem; }
+  pre {
+    margin: 1.5rem 0 0;
+    padding: 1rem 1.25rem;
+    overflow-x: auto;
+    font: 0.8125rem/1.6 var(--mono);
+    background: #f4f2ee;
+    border-left: 2px solid var(--ink);
+  }
+  figure { margin: 2rem 0 0; }
+  figure button { display: block; width: 100%; cursor: zoom-in; }
+  figure img { display: block; width: 100%; height: auto; border: 1px solid var(--rule); }
+  figcaption { font-size: 0.8125rem; color: var(--muted); margin-top: 0.5rem; }
 </style>

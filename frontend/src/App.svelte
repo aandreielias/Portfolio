@@ -1,439 +1,250 @@
 <script>
-  import { onMount, onDestroy } from "svelte";
-  import { ApiService } from "./lib/services/api.js";
-
-  import { projectRegistry } from "./lib/stores/projectStore.js";
-  import ProjectCard from "./lib/components/project/ProjectCard.svelte";
-
+  import { fly } from "svelte/transition";
+  import { cubicOut } from "svelte/easing";
+  import { name, projects, text } from "./content.js";
+  import { lang, setLang } from "./lib/lang.svelte.js";
+  import { imageViewerStore, closeImage } from "./lib/stores/imageViewerStore.js";
+  import Section from "./lib/components/Section.svelte";
   import ProjectModal from "./lib/components/project/ProjectModal.svelte";
-
-  import ContactSheet from "./lib/components/common/ContactSheet.svelte";
   import ImageViewer from "./lib/components/common/ImageViewer.svelte";
-  import Header from "./lib/components/layout/Header.svelte";
-  import Footer from "./lib/components/layout/Footer.svelte";
 
+  const base = import.meta.env.BASE_URL;
+  const roman = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
 
+  let t = $derived(text[lang.current]);
+  let index = $derived([{ id: "profil", title: t.profile.title, kind: "profile" }, ...t.sections]);
+  let current = $state(location.hash.slice(1));
+  let section = $derived(index.find((s) => s.id === current));
+  let pinned = $state(false);
+  let projectId = $state(null);
+  let project = $derived(projects.find((p) => p.id === projectId));
 
-  // Environment variables
-  const name = import.meta.env.VITE_NAME || "Portfolio";
-  const email = import.meta.env.VITE_EMAIL || "email@example.com";
-
-  // State
-  let selectedProject = null;
-
-  let contactActiveTab = "about";
-  let scrollY = 0;
-
-  // Calculated positions
-  // Contact Sheet: ends at 85vh
-  // Spacer: 150vh long. Starts at 85vh. Ends at 235vh.
-  // Projects: Starts at 235vh.
-
-  // Hero View Target: Midpoint of spacer.
-  // Spacer Start (85) + Spacer Height/2 (75) - Viewport/2 (50) = 110vh
-
-  // Initialize data on mount
-  onMount(async () => {
-    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
-
-    // Start at the Hero position (Middle)
-    window.scrollTo(0, window.innerHeight * 1.1);
-
-    const projects = await ApiService.fetchAllProjects();
-    projectRegistry.set(projects);
+  $effect(() => setLang(lang.current));
+  $effect(() => {
+    document.title = section ? `${section.title} · ${name}` : name;
+  });
+  $effect(() => {
+    current;
+    window.scrollTo(0, 0);
   });
 
-  // Modal controls
-  function openProject(project) {
-    selectedProject = project;
-  }
-  function closeProject() {
-    selectedProject = null;
+  function home() {
+    history.pushState(null, "", location.pathname);
+    current = "";
+    pinned = false;
   }
 
-  function openContact(tab = "about") {
-    contactActiveTab = tab;
-    scrollTo("contact");
-  }
-
-  function scrollTo(id) {
-    let targetPosition = null;
-    const vh = window.innerHeight;
-
-    if (id === "contact") {
-      targetPosition = 0; // Top of page (Contact Sheet)
-    } else if (id === "hero" || id === "top") {
-      // "top" now refers to the main view (Hero)
-      targetPosition = vh * 1.1;
-    } else if (id === "projects") {
-      // Target projects start (235vh) minus offset (Sticky 15vh) = 220vh
-      targetPosition = vh * 2.2;
-    }
-
-    if (targetPosition !== null) {
-      const startPosition = window.scrollY;
-      const distance = targetPosition - startPosition;
-      const duration = 1200;
-      let startTime = null;
-
-      function animation(currentTime) {
-        if (!startTime) startTime = currentTime;
-        const timeElapsed = currentTime - startTime;
-        const progress = Math.min(timeElapsed / duration, 1);
-
-        // Ease In Out Quad
-        const ease =
-          progress < 0.5
-            ? 2 * progress * progress
-            : 1 - Math.pow(-2 * progress + 2, 2) / 2;
-
-        window.scrollTo(0, startPosition + distance * ease);
-
-        if (timeElapsed < duration) {
-          requestAnimationFrame(animation);
-        }
-      }
-
-      requestAnimationFrame(animation);
-    } else {
-      document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-    }
-  }
-
-  function handleOutsideClick(event) {
-    // Determine where we are
-    const vh = window.innerHeight;
-    const scrollY = window.scrollY;
-
-    // Contact Sheet is 85vh.
-    const isAtContact = scrollY < vh * 0.5;
-
-    // Projects starts at 235vh.
-    // Sticky offset is 15vh. So effective top of projects view is 220vh.
-    const isAtProjects = scrollY > vh * 1.8;
-
-    // Ignore clicks on interactive elements
-    if (event.target.closest("button") || event.target.closest("a")) return;
-
-    // If not at Hero, scroll to Hero (Middle)
-    // "top" here refers to the landing state
-    if (isAtContact || isAtProjects) {
-      scrollTo("hero");
-    }
+  // One Esc handler for every layer, so a single press closes only the topmost one.
+  function onkeydown(e) {
+    if (e.key !== "Escape") return;
+    if ($imageViewerStore.isOpen) closeImage();
+    else if (project) projectId = null;
+    else if (section) home();
   }
 </script>
 
-<svelte:window bind:scrollY />
+<svelte:window onhashchange={() => (current = location.hash.slice(1))} {onkeydown} />
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-<div class="landing-fixed" on:click={handleOutsideClick}>
-
-  <Header on:openContact={() => openContact("contact")} />
-
-   <section class="hero">
-     <div class="hero-content">
-       <div class="portfolio-title">
-         <h1>My Portfolio</h1>
-         <p class="name">{name}</p>
-         <p class="subtitle">
-           Student of Systems Engineering<br />and Systems Design
-         </p>
-       </div>
-
-       <div class="hero-footer">
-         <div class="actions">
-           <button class="primary-btn" on:click={() => scrollTo("projects")}
-             >View Work</button
-           >
-           <button class="secondary-btn" on:click={() => openContact("about")}
-             >About Me</button
-           >
-         </div>
-       </div>
-     </div>
-   </section>
-</div>
-
-<div class="content-scroll">
-  <!-- Top Sheet (Contact) -->
-  <!-- "slides down from the top when scrolling up" -->
-  <div class="top-sheet-wrapper">
-    <ContactSheet
-      bind:activeTab={contactActiveTab}
-      on:viewProject={(e) => {
-        const projectId = e.detail;
-        projectRegistry.subscribe((projects) => {
-          const project = projects.find((p) => p.id === projectId);
-          if (project) {
-            openProject(project);
-            scrollTo("projects"); // Optional: scroll to show context
-          }
-        })();
-      }}
-    />
+<div class="desk" class:open={section}>
+  <div class="lang" role="group" aria-label="Language">
+    {#each ["de", "en"] as l}
+      <button aria-pressed={lang.current === l} onclick={() => setLang(l)}>{l.toUpperCase()}</button>
+    {/each}
   </div>
 
-  <!-- Hero Spacer -->
-  <!-- This is the gap that allows the fixed background to be seen -->
-  <div class="hero-spacer"></div>
+  <main class="hero" class:pinned inert={section ? true : undefined}>
+    <h1>
+      <button aria-expanded={pinned} aria-controls="index" aria-label={name} onclick={() => (pinned = !pinned)}>
+        {#each name as ch, i}<span style="--i:{i}" aria-hidden="true">{ch}</span>{/each}<span class="caret" aria-hidden="true"></span>
+      </button>
+    </h1>
+    <span class="rule" aria-hidden="true"></span>
+    <nav aria-label={t.ui.index}>
+      <ol id="index">
+        {#each index as s, i}
+          <li style="--i:{i}"><a href="#{s.id}"><span class="num">{roman[i]}</span>{s.title}</a></li>
+        {/each}
+        <li style="--i:{index.length}">
+          <a href={base + t.cv.href} target="_blank" rel="noopener"><span class="num">↗</span>{t.cv.label}</a>
+        </li>
+      </ol>
+    </nav>
+  </main>
 
-  <!-- Bottom Sheet (Projects) -->
-  <div class="sheet">
-    <main>
-      <section id="projects" class="section">
-        <div class="section-header">
-          <h2>Selected Projects</h2>
-          <p>A collection of my recent work.</p>
-        </div>
-        <div class="grid">
-          {#each $projectRegistry as project (project.id)}
-            <!-- svelte-ignore a11y-no-static-element-interactions -->
-            <div class="grid-item">
-              <ProjectCard {project} onClick={() => openProject(project)} />
-            </div>
-          {/each}
-        </div>
-      </section>
+  {#if section}
+    <header class="bar" in:fly={{ y: -16, duration: 400 }}>
+      <button class="mini" onclick={home} title={t.ui.back}>{name}</button>
+      <nav aria-label={t.ui.index}>
+        {#each index as s}
+          <a href="#{s.id}" aria-current={s.id === current ? "page" : undefined}>{s.title}</a>
+        {/each}
+      </nav>
+    </header>
 
-      {#if selectedProject}
-        <ProjectModal project={selectedProject} on:close={closeProject} />
-      {/if}
-
-      <ImageViewer />
-    </main>
-
-    <Footer />
-  </div>
+    {#key section.id}
+      <article class="sheet" in:fly={{ y: 80, duration: 700, easing: cubicOut }}>
+        <h2>{section.title}</h2>
+        <Section {section} {t} lang={lang.current} onproject={(id) => (projectId = id)} />
+        <footer>
+          <span>{name}</span>
+          <a href={base + t.cv.href} target="_blank" rel="noopener">{t.cv.label}</a>
+        </footer>
+      </article>
+    {/key}
+  {/if}
 </div>
+
+{#if project}
+  <ProjectModal {project} {t} lang={lang.current} onclose={() => (projectId = null)} />
+{/if}
+<ImageViewer />
 
 <style>
-  /* Fixed Landing Page Layer */
-  .landing-fixed {
+  .desk {
+    min-height: 100vh;
+    min-height: 100dvh;
+    transition: background-color 0.6s var(--ease);
+  }
+  .desk.open { background: #eeebe5; }
+
+  .lang {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    z-index: 1;
-    pointer-events: auto;
-    background: white;
-  }
-
-  /* Scrollable Content Layer */
-  .content-scroll {
-    position: relative;
-    z-index: 2;
-    /* Reset margins as we control flow */
-    margin: 0;
-    pointer-events: none; /* Let clicks pass through empty areas */
-  }
-
-  /* Top Sheet (Contact) */
-  .top-sheet-wrapper {
-    height: 85vh; /* Stops at 15vh from bottom (when viewed from top) */
-    pointer-events: none; /* Let clicks pass through to landing-fixed */
-    position: relative;
-    /* Ensures it is above the spacer in the document flow */
-    /* Note: Normal flow places this at 0-85vh */
-  }
-
-  /* Hero Spacer */
-  .hero-spacer {
-    height: 150vh;
-    width: 100%;
-    pointer-events: none; /* See-through to fixed landing */
-  }
-
-  /* The actual rising sheet (Projects) */
-  .sheet {
-    pointer-events: auto;
-    background-color: var(--color-bg);
-    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
-
-    /* Sticky behavior */
-    position: sticky;
-    top: 15vh; /* Max rising point: 1/4 from top */
-
-    /* Flex column for sticky footer */
+    top: 1.25rem;
+    right: 1.25rem;
+    z-index: 20;
     display: flex;
-    flex-direction: column;
-
-    /* Layout */
-    height: 85vh; /* Occupy remaining space (100vh - 15vh) */
-    overflow-y: auto; /* Internal scroll */
-    width: 66.67%; /* 2/3 of the width */
-    margin: 0 auto; /* Center the sheet */
-
-    /* Padding above Selected Projects */
-    padding-top: 4rem;
-
-    /* Smoothness */
-    border-radius: var(--radius);
+    gap: 0.25rem;
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
   }
+  .lang button { padding: 0.25rem 0.35rem; color: var(--muted); }
+  .lang button[aria-pressed="true"] { color: var(--ink); text-decoration: underline; text-underline-offset: 0.3em; }
 
+  /* Landing: only the name. The index typesets out on hover, focus or tap. */
   .hero {
-    min-height: 80vh;
-    display: flex;
-    justify-content: flex-start; /* Align to top */
-    align-items: center;
-    position: relative;
-    padding-top: 5vh; /* Distance from top of site (under header) */
-    /* Ensure it takes full height in the fixed container */
-    height: 100%;
-  }
-
-  .hero-bg-container {
-    display: none;
-  }
-
-  .hero-content {
-    text-align: center;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 5vh;
-    padding-top: 0;
-  }
-
-   .portfolio-title {
-     position: relative;
-     text-align: center;
-     margin-bottom: 3rem;
-   }
-
-   .portfolio-title h1 {
-     font-size: 4rem;
-     font-weight: 700;
-     margin: 0 0 0.5rem 0;
-     color: var(--color-text);
-     letter-spacing: -0.02em;
-   }
-
-    .portfolio-title .name {
-      font-size: 3.5rem;
-      font-weight: 700;
-      margin: 0 0 0.67rem 0;
-      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-   .subtitle {
-     font-size: 1.1rem;
-     color: var(--color-text-muted);
-     font-weight: 500;
-     margin: 0;
-     text-align: center;
-     text-transform: uppercase;
-     letter-spacing: 0.05em;
-     z-index: 2;
-     pointer-events: none;
-   }
-
-   .hero-footer {
-     display: flex;
-     flex-direction: column;
-     align-items: center;
-     gap: 2rem;
-     width: 100%;
-     z-index: 10;
-   }
-
-
-  .actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-  }
-
-  .primary-btn {
-    background: rgba(var(--color-primary-rgb), 0.8);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    color: white;
-    padding: 0.8rem 2rem;
-    border-radius: var(--radius);
-    font-size: 1.1rem;
-    box-shadow: 0 4px 15px rgba(var(--color-primary-rgb), 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-  }
-
-  .primary-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(var(--color-primary-rgb), 0.6);
-    background: rgba(var(--color-primary-rgb), 0.9);
-  }
-
-  .secondary-btn {
-    background: var(--glass-panel-bg);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    color: var(--color-text);
-    padding: 0.8rem 2rem;
-    border-radius: var(--radius);
-    font-size: 1.1rem;
-    border: 1px solid var(--glass-border);
-    transition: all 0.3s ease;
-  }
-
-  .secondary-btn:hover {
-    background: var(--btn-secondary-hover-bg);
-    border-color: var(--color-primary);
-    transform: translateY(-2px);
-  }
-
-  main {
-    width: 100%;
-    flex-grow: 1;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
-  }
-
-  .section {
-    margin-bottom: 8rem;
-    scroll-margin-top: 120px;
-    margin-top: 0;
-  }
-
-  .section-header {
-    margin-bottom: 3rem;
-  }
-
-  h2 {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .section-header p {
-    color: var(--color-text-muted);
-    font-size: 1.1rem;
-  }
-
-  .grid {
+    position: fixed;
+    inset: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
+    place-content: center;
+    justify-items: start;
+    padding: 0 1rem;
+    pointer-events: none; /* only the name, rule and index react to hover, not the whole page */
+    transition: opacity 0.5s var(--ease), transform 0.6s var(--ease);
+  }
+  .desk.open .hero { opacity: 0; transform: translateY(-3rem); pointer-events: none; }
+
+  /* Printer's crop marks: the landing page is a blank sheet. */
+  .hero::before, .hero::after {
+    content: "";
+    position: absolute;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: solid var(--rule);
+    pointer-events: none;
+    animation: fade 1.2s 1.2s both;
+  }
+  .hero::before { top: 2.5rem; left: 2.5rem; border-width: 1px 0 0 1px; }
+  .hero::after { bottom: 2.5rem; right: 2.5rem; border-width: 0 1px 1px 0; }
+
+  .hero > * { pointer-events: auto; }
+  h1 button { text-align: left; }
+  h1 {
+    font-size: clamp(2.75rem, 10vw, 7.5rem);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+  }
+  h1 span:not(.caret) {
+    display: inline-block;
+    white-space: pre;
+    animation: rise 0.9s calc(var(--i) * 45ms) var(--ease) both;
+  }
+  .caret {
+    display: inline-block;
+    width: 0.06em;
+    height: 0.8em;
+    margin-left: 0.08em;
+    background: var(--ink);
+    vertical-align: -0.02em;
+    animation: blink 1.1s 1s steps(1) infinite;
+  }
+  .hero:hover .caret, .hero:focus-within .caret, .hero.pinned .caret { animation: none; opacity: 0; }
+
+  .rule {
+    display: block;
+    width: 100%;
+    height: 1px;
+    box-sizing: content-box;
+    padding: 1.25rem 0 1.5rem; /* padding, not margin: keeps hover alive between name and index */
+    background: var(--ink) content-box;
+    transform-origin: left;
+    animation: draw 1s 0.6s var(--ease) both;
   }
 
-  .grid-item {
-    grid-column: span 1;
-    grid-row: span 1;
-    height: 100%;
+  ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; min-height: 15rem; }
+  li {
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 0.45s steps(14) calc(var(--i) * 60ms);
+  }
+  .hero:hover li, .hero:focus-within li, .hero.pinned li { clip-path: inset(0 0 0 0); }
+  ol a {
+    display: inline-flex;
+    gap: 1rem;
+    font-size: 1.375rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  ol a:hover { text-decoration: underline; text-decoration-thickness: 1px; }
+  .num { width: 2.25rem; color: var(--muted); font-size: 0.875rem; padding-top: 0.45rem; }
+
+  /* Section view */
+  .bar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem 1.75rem;
+    padding: 1.1rem 5.5rem 0.9rem 1.5rem;
+    background: color-mix(in srgb, #eeebe5 88%, transparent);
+    backdrop-filter: blur(6px);
+  }
+  .mini { font-size: 1.25rem; }
+  .mini:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+  .bar nav { display: flex; flex-wrap: wrap; gap: 0.25rem 1.1rem; font-size: 0.9375rem; }
+  .bar nav a { color: var(--muted); text-decoration: none; }
+  .bar nav a:hover, .bar nav a[aria-current] { color: var(--ink); }
+  .bar nav a[aria-current] { text-decoration: underline; text-underline-offset: 0.3em; }
+
+  .sheet {
+    max-width: 52rem;
+    margin: 1.5rem auto 4rem;
+    padding: clamp(1.5rem, 6vw, 4.5rem) clamp(1rem, 7vw, 5rem) 2rem;
+    background: var(--paper);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 12px 40px -12px rgb(0 0 0 / 0.18);
+  }
+  .sheet h2 { font-size: 1.75rem; font-weight: 700; margin-bottom: 1.75rem; }
+  .sheet footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 3.5rem;
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+  .sheet footer a { color: inherit; }
+
+  @media (max-width: 640px) {
+    .bar { padding: 0.9rem 4.5rem 0.75rem 1rem; }
+    .sheet { margin: 0 0 2rem; }
+    .hero::before { top: 1.25rem; left: 1.25rem; }
+    .hero::after { bottom: 1.25rem; right: 1.25rem; }
   }
 
-  @media (max-width: 768px) {
-    .grid {
-      grid-template-columns: 1fr;
-    }
-
-    .sheet,
-    .top-sheet-wrapper {
-      width: 100%;
-    }
-  }
+  @keyframes rise { from { opacity: 0; transform: translateY(0.35em); } }
+  @keyframes draw { from { transform: scaleX(0); } }
+  @keyframes fade { from { opacity: 0; } }
+  @keyframes blink { 50% { opacity: 0; } }
 </style>
