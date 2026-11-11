@@ -17,6 +17,22 @@
   {#each p.body as para}<p class="para">{para}</p>{/each}
   <p class="tech"><span>{t.ui.technologies}</span> {project.tech}</p>
 
+  {#if p.arch}
+    <h3>{p.arch.title}</h3>
+    <div class="arch">
+      {#each p.arch.layers as l}
+        <section class="layer" class:accent={l.accent}>
+          <h4>{l.name}</h4>
+          <ul>{#each l.items as item}<li>{item}</li>{/each}</ul>
+          {#if l.note}<p class="note">{l.note}</p>{/if}
+        </section>
+        {#if l.via}<p class="via">{l.via}</p>{/if}
+      {/each}
+    </div>
+    <h3>{p.arch.flowTitle}</h3>
+    <ol class="flow">{#each p.arch.flow as step}<li>{step}</li>{/each}</ol>
+  {/if}
+
   {#if project.code}<pre><code>{project.code}</code></pre>{/if}
 
   {#each project.images ?? [] as img}
@@ -35,6 +51,29 @@
   .para + .para { margin-top: var(--s3); }
   .tech { margin-top: var(--s4); font-size: 13.5px; color: var(--muted); }
   .tech span { font-weight: 600; color: var(--text); }
+  h3 { margin-top: var(--s6); font-size: 15px; }
+
+  /* Architecture: stacked layers joined by labelled connectors. */
+  .arch { margin-top: var(--s3); }
+  .layer { padding: var(--s3) var(--s4); background: var(--surface); border-radius: var(--r-md); box-shadow: inset 0 0 0 1px var(--border); }
+  .layer.accent { background: color-mix(in srgb, var(--accent) 7%, var(--elevated)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent); }
+  h4 { margin: 0; font-size: 13.5px; font-weight: 600; }
+  .layer ul { display: flex; flex-wrap: wrap; gap: var(--s1); margin: var(--s2) 0 0; padding: 0; list-style: none; }
+  .layer li { padding: 1px var(--s2); font-size: 12.5px; background: var(--elevated); border-radius: var(--r-sm); box-shadow: var(--shadow-raised); }
+  .note { margin-top: var(--s2); font-size: 12.5px; color: var(--muted); }
+  .via {
+    position: relative;
+    margin: 0;
+    padding: var(--s2) 0 var(--s2) var(--s6);
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .via::before { content: ""; position: absolute; left: var(--s5); top: 0; bottom: 0; border-left: 1.5px solid var(--border-strong); }
+
+  .flow { max-width: 68ch; margin: var(--s3) 0 0; padding-left: var(--s5); color: #3d3f47; }
+  .flow li + li { margin-top: var(--s2); }
+  .flow li::marker { color: var(--muted); font-variant-numeric: tabular-nums; }
+
   pre {
     margin: var(--s5) 0 0;
     padding: var(--s4);
