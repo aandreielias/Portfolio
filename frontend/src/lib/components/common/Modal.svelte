@@ -2,13 +2,13 @@
   import { fade, fly } from "svelte/transition";
   import { cubicOut } from "svelte/easing";
 
-  let { title, onclose, labels, actions, children } = $props();
+  let { title, onclose, labels, actions, children, width = 860 } = $props();
 
   const MIN_W = 300;
   const MIN_H = 200;
   const handles = ["n", "s", "e", "w", "ne", "nw", "se", "sw"];
 
-  const w0 = Math.min(860, innerWidth - 32);
+  const w0 = Math.min(width, innerWidth - 32);
   const h0 = Math.min(innerHeight * 0.85, 780);
   let w = $state(w0);
   let h = $state(h0);

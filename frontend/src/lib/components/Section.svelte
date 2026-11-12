@@ -1,5 +1,5 @@
 <script>
-  import { email, github, name, projects } from "../../content.js";
+  import { name, projects } from "../../content.js";
 
   let { section, t, lang, onproject } = $props();
   const base = import.meta.env.BASE_URL;
@@ -14,24 +14,6 @@
     {#each t.profile.rows as [label, value]}
       <div><dt>{label}</dt><dd>{value}</dd></div>
     {/each}
-  </dl>
-{:else if section.kind === "projects"}
-  {#each projects as p}
-    <div class="entry">
-      <span class="date">{p.year}</span>
-      <div>
-        <h3><button class="title" onclick={() => onproject(p.id)}>{p[lang].title}</button></h3>
-        <p class="text">{p[lang].summary}</p>
-        <p class="tech"><span>{t.ui.technologies}</span> {p.tech}</p>
-        <button class="btn" onclick={() => onproject(p.id)}>{t.ui.details}</button>
-      </div>
-    </div>
-  {/each}
-{:else if section.kind === "contact"}
-  <dl>
-    <div><dt>E-Mail</dt><dd><a href="mailto:{email}">{email}</a></dd></div>
-    <div><dt>GitHub</dt><dd><a href={github} target="_blank" rel="noopener">github.com/aandreielias</a></dd></div>
-    <div><dt>PDF</dt><dd><a href={base + t.cv.href} target="_blank" rel="noopener">{t.cv.label}</a></dd></div>
   </dl>
 {:else if section.rows}
   <dl>
@@ -72,8 +54,6 @@
   .date { font-size: 13.5px; color: var(--muted); font-variant-numeric: tabular-nums; padding-top: 2px; }
   .place { font-size: 13.5px; color: var(--muted); margin-bottom: 2px; }
   h3 { font-size: 16px; }
-  .title { text-align: left; border-radius: 4px; }
-  .title:hover { color: var(--accent); }
   .text { margin-top: var(--s2); color: #3d3f47; }
   .tech { margin-top: var(--s3); font-size: 13.5px; color: var(--muted); }
   .tech span { font-weight: 600; color: var(--text); }
@@ -100,8 +80,6 @@
   dl div + div { border-top: 1px solid var(--border); }
   dt { font-size: 13.5px; color: var(--muted); padding-top: 1px; }
   dd { margin: 0; }
-  dd a { color: var(--accent); text-decoration: none; }
-  dd a:hover { text-decoration: underline; }
 
   @media (max-width: 720px) {
     .entry, dl div { grid-template-columns: minmax(0, 1fr); gap: var(--s1); }

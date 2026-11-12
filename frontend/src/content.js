@@ -9,9 +9,14 @@ export const projects = [
     year: "2026",
     tech: "Java, Spring Boot, TypeScript, Svelte, PostgreSQL, Supabase, Docker, Git",
     images: [
+      { src: "uploads/projects/Vereinsmanagement/turniere.png", de: "Turnier mit Gruppentabellen, Ergebnissen und Satzständen", en: "Tournament with group tables, results and set scores" },
+      { src: "uploads/projects/Vereinsmanagement/termin.png", de: "Geöffneter Termin mit Ort, Kabine und Karte", en: "Opened appointment with venue, changing room and map" },
       { src: "uploads/projects/Vereinsmanagement/kalender.png", de: "Kalender mit Trainings, Sitzungen, Turnieren und Fristen", en: "Calendar with training sessions, meetings, tournaments and deadlines" },
       { src: "uploads/projects/Vereinsmanagement/aufgaben.png", de: "Aufgaben mit Fälligkeit, Zuständigen und Checklisten", en: "Tasks with due dates, assignees and checklists" },
       { src: "uploads/projects/Vereinsmanagement/mitglieder.png", de: "Mitgliederverwaltung mit Rollen", en: "Member management with roles" },
+      { src: "uploads/projects/Vereinsmanagement/sitzungen.png", de: "Laufende Sitzung mit Tagesordnung und geheimer Abstimmung", en: "Running meeting with agenda and secret ballot" },
+      { src: "uploads/projects/Vereinsmanagement/inventar.png", de: "Inventar mit Bestand und Lagerort", en: "Inventory with stock and location" },
+      { src: "uploads/projects/Vereinsmanagement/start.png", de: "Startseite mit Einrichtung und den nächsten Terminen", en: "Start page with setup steps and the coming week" },
     ],
     de: {
       title: "Vereinsmanagement-Software",
@@ -25,24 +30,10 @@ export const projects = [
         "Website und App nutzen dieselbe REST-API. Aus ihrer OpenAPI-Spezifikation werden die TypeScript-Typen des Frontends generiert, ein Integrationstest erkennt ungewollte Änderungen am Vertrag. Fehler kommen einheitlich nach RFC 9457 mit Code und Korrelations-ID.",
         "Frontend in Svelte 5 und TypeScript ohne UI-Framework, ebenfalls mit einem kleinen Event-Bus für Server-Events und UI-Befehle. Ein Demo-Modus bildet die gesamte API im Browser nach, mit denselben Regeln wie der Server; die Abbildungen zeigen diesen Modus mit Testdaten.",
       ],
-      arch: {
-        title: "Aufbau",
-        layers: [
-          { name: "Frontend", items: ["Svelte 5", "Seiten und View-Models", "API-Klassen", "Client-Bus"], via: "REST (JSON) und WebSocket" },
-          { name: "Gateway", items: ["Controller", "Login und Rechte", "Rate-Limits", "Idempotenz", "Fehler nach RFC 9457", "Live-Updates"], via: "Befehle per Request" },
-          { name: "Event-Bus", items: ["club/<modul>/cmd/<name>", "club/<modul>/evt/<name>"], accent: true, via: "Handler je Modul" },
-          { name: "13 Fachmodule", items: ["Mitglieder", "Teams", "Kalender", "Anwesenheit", "Sitzungen", "Aufgaben", "Aktivitäten", "Dateien", "Inventar", "Orte", "Turniere", "Benachrichtigungen", "E-Mail"], note: "je Modul: api, application, domain, infrastructure", via: "SQL mit Parametern" },
-          { name: "PostgreSQL (Supabase)", items: ["Schema club", "Flyway-Migrationen", "Row-Level-Security", "Audit-Log"] },
-        ],
-        flowTitle: "Beispiel: Eine Aufgabe wird angelegt",
-        flow: [
-          "Das Frontend sendet POST /api/v1/tasks mit dem Login-Token.",
-          "Der Controller im Gateway ermittelt das Mitglied und schickt den Befehl club/tasks/cmd/create über den Bus.",
-          "Das Aufgaben-Modul prüft die Berechtigung, fragt bei Bedarf andere Module über den Bus (z. B. Teammitglieder) und speichert die Aufgabe.",
-          "Nach dem Commit veröffentlicht es Events: Benachrichtigungen informiert die Zuständigen per E-Mail und Push, Aktivitäten protokolliert die Änderung.",
-          "Das Gateway schickt das Event über WebSocket an alle, die die Aufgabe sehen dürfen; ihre Listen laden sich neu.",
-        ],
-      },
+      diagrams: [
+        { src: "uploads/projects/Vereinsmanagement/architektur-de.png", caption: "Systemaufbau: Gateway, Event-Bus, Module, Datenbank und externe Dienste" },
+        { src: "uploads/projects/Vereinsmanagement/ablauf-de.png", caption: "Ablauf: Eine Aufgabe wird angelegt" },
+      ],
     },
     en: {
       title: "Club management software",
@@ -56,24 +47,10 @@ export const projects = [
         "Website and app use the same REST API. The frontend's TypeScript types are generated from its OpenAPI specification, and an integration test detects unintended changes to the contract. Errors follow RFC 9457 with a code and a correlation ID.",
         "Frontend in Svelte 5 and TypeScript without a UI framework, also with a small event bus for server events and UI commands. A demo mode runs the whole API in the browser with the same rules as the server; the screenshots show this mode with test data.",
       ],
-      arch: {
-        title: "Architecture",
-        layers: [
-          { name: "Frontend", items: ["Svelte 5", "Pages and view models", "API classes", "Client bus"], via: "REST (JSON) and WebSocket" },
-          { name: "Gateway", items: ["Controllers", "Login and permissions", "Rate limits", "Idempotency", "Errors per RFC 9457", "Live updates"], via: "Commands as requests" },
-          { name: "Event bus", items: ["club/<module>/cmd/<name>", "club/<module>/evt/<name>"], accent: true, via: "Handlers per module" },
-          { name: "13 domain modules", items: ["Members", "Teams", "Calendar", "Attendance", "Meetings", "Tasks", "Activity", "Files", "Inventory", "Locations", "Tournaments", "Notifications", "Email"], note: "each module: api, application, domain, infrastructure", via: "Parameterised SQL" },
-          { name: "PostgreSQL (Supabase)", items: ["Schema club", "Flyway migrations", "Row-level security", "Audit log"] },
-        ],
-        flowTitle: "Example: creating a task",
-        flow: [
-          "The frontend sends POST /api/v1/tasks with the login token.",
-          "The gateway controller resolves the member and sends the command club/tasks/cmd/create over the bus.",
-          "The tasks module checks the permission, asks other modules over the bus where needed (e.g. team members) and stores the task.",
-          "After the commit it publishes events: notifications informs the assignees by email and push, activity records the change.",
-          "The gateway pushes the event over WebSocket to everyone allowed to see the task; their lists reload.",
-        ],
-      },
+      diagrams: [
+        { src: "uploads/projects/Vereinsmanagement/architektur-en.png", caption: "System architecture: gateway, event bus, modules, database and external services" },
+        { src: "uploads/projects/Vereinsmanagement/ablauf-en.png", caption: "Request flow: creating a task" },
+      ],
     },
   },
   {
@@ -81,6 +58,7 @@ export const projects = [
     year: "2026",
     tech: "Java, Maven, JUnit, Git",
     link: "https://github.com/aandreielias/EventBus",
+    console: true,
     code: `try (EventBus bus = EventBusBuilder.create().build()) {
 
     bus.subscribe("orders/created", String.class, orderId -> {
@@ -99,23 +77,7 @@ export const projects = [
         "Intern delegiert die Klasse DefaultEventBus an austauschbare Strategien für Validierung, Routing, Zustellung und Fehlerbehandlung, die über einen Builder gewählt werden. Kanalnamen werden geprüft (höchstens 16 Ebenen, erlaubte Zeichen). Fehler eines Abonnenten erreichen nie den Publisher, Nachrichten ohne Abonnent gehen an einen Dead-Letter-Handler, und schwache Referenzen melden Abonnenten automatisch ab, sobald ihr Objekt nicht mehr existiert.",
         "Eine Registry zählt Zustellungen und Fehler je Abonnent und führt eine Historie, die nur Metadaten und keine Nutzdaten speichert. Das Kommandozeilenwerkzeug ebus liest sie über JMX aus einer laufenden Anwendung und zeigt Kanäle, Abonnenten, Statistiken und neue Events live an.",
       ],
-      arch: {
-        title: "Aufbau",
-        layers: [
-          { name: "Anwendung", items: ["publish", "subscribe", "request", "handleRequest"], via: "Schnittstelle EventBus" },
-          { name: "DefaultEventBus", items: ["Validator", "Router (hierarchisch oder exakt)", "Dispatcher (synchron oder asynchron)", "Exception-Handler", "Registry"], accent: true, note: "Strategien austauschbar über den EventBusBuilder", via: "Zustellung nach Priorität" },
-          { name: "Abonnenten", items: ["Priorität", "synchron oder virtueller Thread", "starke oder schwache Referenz"] },
-        ],
-        flowTitle: "Weg einer Nachricht",
-        flow: [
-          "publish(\"orders/eu/de\", order): der Validator prüft den Kanalnamen.",
-          "Der Router sammelt die Abonnenten des Kanals und, beim hierarchischen Routing, die von orders/eu und orders.",
-          "Die Abonnenten werden nach Priorität sortiert; jeder erhält die Nachricht höchstens einmal.",
-          "Der Dispatcher ruft synchrone Abonnenten direkt auf und startet asynchrone auf virtuellen Threads.",
-          "Wirft ein Abonnent eine Exception, geht sie an den Exception-Handler; ohne Abonnent geht die Nachricht an den Dead-Letter-Handler.",
-          "Die Registry zählt die Zustellung; ebus kann sie über JMX anzeigen.",
-        ],
-      },
+      diagrams: [{ src: "uploads/projects/EventBus/architektur-de.png", caption: "Aufbau der Bibliothek und Weg einer Nachricht" }],
     },
     en: {
       title: "Event bus library",
@@ -127,23 +89,7 @@ export const projects = [
         "Internally the DefaultEventBus class delegates to exchangeable strategies for validation, routing, delivery and error handling, chosen through a builder. Channel names are checked (at most 16 levels, allowed characters). A subscriber's exception never reaches the publisher, messages without a subscriber go to a dead-letter handler, and weak references unsubscribe a subscriber automatically once its object is gone.",
         "A registry counts deliveries and failures per subscriber and keeps a history that stores metadata only, never payloads. The command-line tool ebus reads it over JMX from a running application and shows channels, subscribers, statistics and new events live.",
       ],
-      arch: {
-        title: "Architecture",
-        layers: [
-          { name: "Application", items: ["publish", "subscribe", "request", "handleRequest"], via: "EventBus interface" },
-          { name: "DefaultEventBus", items: ["Validator", "Router (hierarchical or exact)", "Dispatcher (sync or async)", "Exception handler", "Registry"], accent: true, note: "strategies exchangeable through the EventBusBuilder", via: "Delivery by priority" },
-          { name: "Subscribers", items: ["Priority", "Sync or virtual thread", "Strong or weak reference"] },
-        ],
-        flowTitle: "Path of a message",
-        flow: [
-          "publish(\"orders/eu/de\", order): the validator checks the channel name.",
-          "The router collects the channel's subscribers and, with hierarchical routing, those of orders/eu and orders.",
-          "Subscribers are sorted by priority; each receives the message at most once.",
-          "The dispatcher calls synchronous subscribers directly and starts asynchronous ones on virtual threads.",
-          "If a subscriber throws, the exception goes to the exception handler; without a subscriber the message goes to the dead-letter handler.",
-          "The registry counts the delivery; ebus can show it over JMX.",
-        ],
-      },
+      diagrams: [{ src: "uploads/projects/EventBus/architektur-en.png", caption: "Structure of the library and path of a message" }],
     },
   },
   {
@@ -207,7 +153,15 @@ export const text = {
   de: {
     lang: "de",
     cv: { label: "Lebenslauf (PDF)", href: "uploads/Lebenslauf.pdf" },
-    ui: { technologies: "Technologien", close: "Schließen", maximize: "Maximieren", restore: "Verkleinern", openPdf: "Diplomarbeit (PDF)", source: "Quellcode", details: "Details", index: "Inhalt", back: "Zurück" },
+    landing: {
+      who: "Studiert Software Engineering an der FH Wiener Neustadt und baut Vereinssoftware auf einem eigenen Event-Bus.",
+      intro: "Mein größtes Projekt ist eine Software für Vereine: Mitglieder, Kalender und Aufgaben, aufgebaut auf einer Event-Bus-Bibliothek, die ich selbst geschrieben habe.",
+      work: "Projekte",
+      cv: "Lebenslauf",
+      now: "laufend",
+      music: { title: "Musik", piece: "Fantasia", by: "Joe Hisaishi, aus „Nausicaä aus dem Tal der Winde“, gespielt 2023", text: "Neben dem Programmieren spiele ich Harfe, seit 2014 an den Wiener Musikschulen, und seit 2018 auch Fagott." },
+    },
+    ui: { technologies: "Technologien", prev: "Zurück", next: "Weiter", console: "Konsole zum Ausprobieren", close: "Schließen", maximize: "Maximieren", restore: "Verkleinern", openPdf: "Diplomarbeit (PDF)", source: "Quellcode", details: "Details", index: "Inhalt", back: "Zurück" },
     profile: {
       title: "Profil",
       summary: "Software-Engineering-Student mit HTL-Ausbildung im Bereich Biomedizin und Gesundheitsinformatik. Erfahrung in der Entwicklung von Webanwendungen und Java-basierter Software sowie in den Bereichen Softwarearchitektur, Datenbanken und Projektmanagement.",
@@ -221,8 +175,8 @@ export const text = {
         id: "ausbildung",
         title: "Ausbildung",
         entries: [
-          { date: "2025 – laufend", place: "FH Wiener Neustadt, Biotech Campus Tulln", title: "BSc Software Engineering und Systembau", tech: "Java, Spring Boot, JavaScript, Git, Linux, Algorithmen und Datenstrukturen, Datenbanken, OOP" },
-          { date: "2019 – 2024", place: "HTBLuVA Spengergasse, Wien", title: "Ausbildungsschwerpunkt Biomedizin und Gesundheitsinformatik", text: ["Diplomarbeit (in englischer Sprache): Creating a Web Application for a Kenyan Women empowerment group selling their locally sourced products", "Persönlicher Aufgabenbereich: Implementation/Development of the deployment, testing and quality control."], tech: "C#, Java, Python, JavaScript, SQL, Spring Boot, Git, Projektmanagement, Frontend- und Backendentwicklung", project: "eroots" },
+          { date: "10/2025 – laufend", place: "FH Wiener Neustadt, Biotech Campus Tulln", title: "BSc Software Engineering und Systembau", tech: "Java, Spring Boot, JavaScript, Git, Linux, Algorithmen und Datenstrukturen, Datenbanken, OOP" },
+          { date: "2019 – 06/2024", place: "HTBLuVA Spengergasse, Wien", title: "Ausbildungsschwerpunkt Biomedizin und Gesundheitsinformatik", text: ["Diplomarbeit (in englischer Sprache): Creating a Web Application for a Kenyan Women empowerment group selling their locally sourced products", "Persönlicher Aufgabenbereich: Implementation/Development of the deployment, testing and quality control."], tech: "C#, Java, Python, JavaScript, SQL, Spring Boot, Git, Projektmanagement, Frontend- und Backendentwicklung", project: "eroots" },
         ],
       },
       {
@@ -256,13 +210,20 @@ export const text = {
           ["Sprachen", "Deutsch, Rumänisch (Muttersprache); Englisch, fließend in Wort und Schrift"],
         ],
       },
-      { id: "kontakt", title: "Kontakt", kind: "contact" },
     ],
   },
   en: {
     lang: "en",
     cv: { label: "CV (PDF)", href: "uploads/CV.pdf" },
-    ui: { technologies: "Technologies", close: "Close", maximize: "Maximise", restore: "Restore", openPdf: "Diploma thesis (PDF)", source: "Source code", details: "Details", index: "Contents", back: "Back" },
+    landing: {
+      who: "Studies software engineering at FH Wiener Neustadt and builds club software on an event bus of his own.",
+      intro: "My largest project is software for clubs: members, calendar and tasks, built on an event bus library I wrote myself.",
+      work: "Projects",
+      cv: "Curriculum vitae",
+      now: "present",
+      music: { title: "Music", piece: "Fantasia", by: "Joe Hisaishi, from “Nausicaä of the Valley of the Wind”, played in 2023", text: "Besides programming I play the harp, since 2014 at the Vienna music schools, and the bassoon since 2018." },
+    },
+    ui: { technologies: "Technologies", prev: "Previous", next: "Next", console: "Console to try out", close: "Close", maximize: "Maximise", restore: "Restore", openPdf: "Diploma thesis (PDF)", source: "Source code", details: "Details", index: "Contents", back: "Back" },
     profile: {
       title: "Profile",
       summary: "Software engineering student with an HTL education in biomedical and health informatics. Experience in developing web applications and Java-based software, as well as in software architecture, databases and project management.",
@@ -276,8 +237,8 @@ export const text = {
         id: "ausbildung",
         title: "Education",
         entries: [
-          { date: "2025 – present", place: "FH Wiener Neustadt, Biotech Campus Tulln", title: "BSc Software Engineering und Systembau", tech: "Java, Spring Boot, JavaScript, Git, Linux, algorithms and data structures, databases, OOP" },
-          { date: "2019 – 2024", place: "HTBLuVA Spengergasse, Vienna", title: "Specialisation in Biomedical and Health Informatics", text: ["Diploma thesis (written in English): Creating a Web Application for a Kenyan Women empowerment group selling their locally sourced products", "Personal responsibilities: Implementation/Development of the deployment, testing and quality control."], tech: "C#, Java, Python, JavaScript, SQL, Spring Boot, Git, project management, frontend and backend development", project: "eroots" },
+          { date: "10/2025 – present", place: "FH Wiener Neustadt, Biotech Campus Tulln", title: "BSc Software Engineering und Systembau", tech: "Java, Spring Boot, JavaScript, Git, Linux, algorithms and data structures, databases, OOP" },
+          { date: "2019 – 06/2024", place: "HTBLuVA Spengergasse, Vienna", title: "Specialisation in Biomedical and Health Informatics", text: ["Diploma thesis (written in English): Creating a Web Application for a Kenyan Women empowerment group selling their locally sourced products", "Personal responsibilities: Implementation/Development of the deployment, testing and quality control."], tech: "C#, Java, Python, JavaScript, SQL, Spring Boot, Git, project management, frontend and backend development", project: "eroots" },
         ],
       },
       {
@@ -311,7 +272,6 @@ export const text = {
           ["Languages", "German, Romanian (native); English, fluent, written and spoken"],
         ],
       },
-      { id: "kontakt", title: "Contact", kind: "contact" },
     ],
   },
 };
